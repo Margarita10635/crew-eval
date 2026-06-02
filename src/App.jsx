@@ -151,11 +151,31 @@ const PAYMENT_CONFIG = {
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
-// VALID KEYS  (en producción estas vendrían de tu servidor)
+// ADMIN CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
-const VALID_KEYS = {};
-for (let i = 2; i <= 22; i++) {
-  VALID_KEYS[`CREW-${i}-DEMO1`] = { topicId: i, attempts: 3 };
+const ADMIN_PASSWORD = "Alfred@11";
+const ADMIN_KEYS_STORAGE = "creweval_admin_keys";
+
+function loadAdminKeys() {
+  try { return JSON.parse(localStorage.getItem(ADMIN_KEYS_STORAGE) || "{}"); } catch { return {}; }
+}
+function saveAdminKeys(keys) {
+  try { localStorage.setItem(ADMIN_KEYS_STORAGE, JSON.stringify(keys)); } catch {}
+}
+function generateCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+function getValidKeys() {
+  const adminKeys = loadAdminKeys();
+  const keys = {};
+  for (let i = 2; i <= 22; i++) {
+    keys[`CREW-${i}-DEMO1`] = { topicId: i, attempts: 3, used: false, createdAt: "demo" };
+  }
+  Object.entries(adminKeys).forEach(([k, v]) => { keys[k] = v; });
+  return keys;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -247,8 +267,37 @@ export default function App() {
   const [showRedeem, setShowRedeem] = useState(false);
   const [coinAnim, setCoinAnim] = useState(false);
   const [state, setState] = useState(loadState);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminAuth, setAdminAuth] = useState(false);
+  const [adminPass, setAdminPass] = useState("");
+  const [adminPassError, setAdminPassError] = useState("");
+  const [adminKeys, setAdminKeys] = useState(loadAdminKeys());
+  const [selectedAdminTopic, setSelectedAdminTopic] = useState(2);
+  const [newlyGeneratedKey, setNewlyGeneratedKey] = useState("");
   // state = { access: {topicId: {attemptsLeft, usedKeys:[]}}, coins: 0, coinTopics: [topicId,...] }
 
+  const handleAdminLogin = () => {
+    if (adminPass === ADMIN_PASSWORD) { setAdminAuth(true); setAdminPassError(""); }
+    else { setAdminPassError("Contraseña incorrecta"); }
+  };
+
+  const handleGenerateKey = () => {
+    const code = generateCode();
+    const key = `CREW-${selectedAdminTopic}-${code}`;
+    const newKeys = { ...adminKeys, [key]: { topicId: selectedAdminTopic, attempts: 3, used: false, createdAt: new Date().toLocaleDateString() } };
+    setAdminKeys(newKeys);
+    saveAdminKeys(newKeys);
+    setNewlyGeneratedKey(key);
+  };
+
+  const handleDeleteKey = (key) => {
+    const newKeys = { ...adminKeys };
+    delete newKeys[key];
+    setAdminKeys(newKeys);
+    saveAdminKeys(newKeys);
+  };
+
+  const adminKeysList = Object.entries(adminKeys).sort((a, b) => b[1].createdAt - a[1].createdAt);
   const t = T[lang];
   const coins = state.coins || 0;
   const access = state.access || {};
@@ -272,10 +321,17 @@ export default function App() {
   const handleActivateKey = () => {
     const key = keyInput.trim().toUpperCase();
     setKeyError(""); setKeySuccess("");
-    const keyData = VALID_KEYS[key];
+    const validKeys = getValidKeys();
+    const keyData = validKeys[key];
     if (!keyData || keyData.topicId !== showModal.id) { setKeyError(t.keyError); return; }
     const allUsed = Object.values(access).flatMap(a => a.usedKeys || []);
     if (allUsed.includes(key)) { setKeyError(t.keyError); return; }
+    // Mark key as used in admin keys
+    const adminKeys = loadAdminKeys();
+    if (adminKeys[key]) {
+      adminKeys[key].used = true;
+      saveAdminKeys(adminKeys);
+    }
     const newAccess = {
       ...access,
       [showModal.id]: {
@@ -358,6 +414,7 @@ export default function App() {
             </div>
           </div>
           <div style={S.headerRight}>
+            <button style={S.adminBtn} onClick={() => { setShowAdmin(true); setAdminAuth(false); setAdminPass(""); setNewlyGeneratedKey(""); }}>⚙️</button>
             <button style={S.coinBtn} onClick={() => setShowWallet(true)}>
               🪙 <span style={S.coinCount}>{coins}</span>
             </button>
@@ -612,6 +669,74 @@ export default function App() {
           </div>
         </div>
       )}
+      {/* ── ADMIN MODAL ── */}
+      {showAdmin && (
+        <div style={S.overlay} onClick={() => setShowAdmin(false)}>
+          <div style={{ ...S.modal, maxWidth: 420, maxHeight: "90vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+            <div style={S.modalIcon}>⚙️</div>
+            <h3 style={S.modalTitle}>Panel Administrador</h3>
+
+            {!adminAuth ? (
+              <div style={{textAlign:"center"}}>
+                <p style={{fontSize:12, color:"#78909c", marginBottom:10}}>Ingresa tu contraseña de administrador</p>
+                <input style={S.keyInput} type="password" placeholder="Contraseña" value={adminPass}
+                  onChange={e => { setAdminPass(e.target.value); setAdminPassError(""); }}
+                  onKeyDown={e => e.key === "Enter" && handleAdminLogin()} />
+                {adminPassError && <p style={S.keyError}>⚠️ {adminPassError}</p>}
+                <button style={S.activateBtn} onClick={handleAdminLogin}>Entrar</button>
+              </div>
+            ) : (
+              <div>
+                {/* GENERATE KEY SECTION */}
+                <div style={S.adminSection}>
+                  <p style={S.adminSectionTitle}>🔑 Generar nueva clave</p>
+                  <p style={{fontSize:11, color:"#78909c", margin:"0 0 10px"}}>Selecciona el tema y genera una clave única para tu cliente:</p>
+                  <select style={S.adminSelect} value={selectedAdminTopic} onChange={e => { setSelectedAdminTopic(Number(e.target.value)); setNewlyGeneratedKey(""); }}>
+                    {TOPICS.filter(t => !t.free).map(topic => (
+                      <option key={topic.id} value={topic.id}>{topic.icon} {topic.nameEs}</option>
+                    ))}
+                  </select>
+                  <button style={S.generateBtn} onClick={handleGenerateKey}>🎲 Generar Clave</button>
+                  {newlyGeneratedKey && (
+                    <div style={S.newKeyBox}>
+                      <p style={{fontSize:11, color:"#81c784", margin:"0 0 4px"}}>✅ Clave generada — mándala por WhatsApp:</p>
+                      <div style={S.newKeyCode}>{newlyGeneratedKey}</div>
+                      <p style={{fontSize:10, color:"#546e7a", margin:"4px 0 0"}}>3 intentos · Válida para: {TOPICS.find(t => t.id === selectedAdminTopic)?.nameEs}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* KEYS LIST */}
+                <div style={S.adminSection}>
+                  <p style={S.adminSectionTitle}>📋 Claves generadas ({adminKeysList.length})</p>
+                  {adminKeysList.length === 0 && (
+                    <p style={{fontSize:12, color:"#546e7a", textAlign:"center"}}>Aún no has generado claves</p>
+                  )}
+                  {adminKeysList.map(([key, data]) => {
+                    const topic = TOPICS.find(t => t.id === data.topicId);
+                    return (
+                      <div key={key} style={{ ...S.adminKeyRow, ...(data.used ? S.adminKeyUsed : {}) }}>
+                        <div style={{flex:1}}>
+                          <div style={S.adminKeyCode}>{key}</div>
+                          <div style={S.adminKeyMeta}>{topic?.icon} {topic?.nameEs} · {data.createdAt}</div>
+                        </div>
+                        <div style={{display:"flex", gap:6, alignItems:"center"}}>
+                          {data.used
+                            ? <span style={S.usedBadge}>Usada</span>
+                            : <span style={S.availBadge}>Disponible</span>
+                          }
+                          <button style={S.deleteKeyBtn} onClick={() => handleDeleteKey(key)}>✕</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <button style={S.cancelBtn} onClick={() => setShowAdmin(false)}>Cerrar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -748,6 +873,20 @@ const S = {
   activateBtn: { width: "100%", padding: "12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #0066cc, #00aaff)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 8 },
   demoKeyHint: { fontSize: 10, color: "#546e7a", fontFamily: "monospace", margin: "6px 0 0", textAlign: "center" },
   mpBtn: { display: "block", textAlign: "center", background: "linear-gradient(135deg, #00b1ea, #009ee3)", color: "#fff", fontWeight: 700, fontSize: 14, padding: "11px 16px", borderRadius: 9, textDecoration: "none", margin: "8px 0", cursor: "pointer" },
+  adminBtn: { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#78909c", padding: "5px 10px", borderRadius: 6, cursor: "pointer", fontSize: 14 },
+  adminSection: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: 14, marginBottom: 12 },
+  adminSectionTitle: { fontSize: 13, fontWeight: 600, color: "#e3f2fd", margin: "0 0 8px" },
+  adminSelect: { width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(0,120,255,0.3)", background: "rgba(0,0,0,0.3)", color: "#e3f2fd", fontSize: 13, marginBottom: 8, outline: "none" },
+  generateBtn: { width: "100%", padding: "11px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #0066cc, #00aaff)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" },
+  newKeyBox: { background: "rgba(0,200,100,0.08)", border: "1px solid rgba(0,200,100,0.3)", borderRadius: 8, padding: "10px 14px", marginTop: 10, textAlign: "center" },
+  newKeyCode: { fontFamily: "monospace", fontSize: 18, fontWeight: 900, color: "#81c784", letterSpacing: 2 },
+  adminKeyRow: { display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "8px 10px", marginBottom: 6 },
+  adminKeyUsed: { opacity: 0.5 },
+  adminKeyCode: { fontFamily: "monospace", fontSize: 12, fontWeight: 700, color: "#4fc3f7" },
+  adminKeyMeta: { fontSize: 10, color: "#546e7a", marginTop: 2 },
+  usedBadge: { fontSize: 9, fontWeight: 700, background: "rgba(255,80,80,0.15)", color: "#ef9a9a", padding: "2px 6px", borderRadius: 4 },
+  availBadge: { fontSize: 9, fontWeight: 700, background: "rgba(0,200,100,0.15)", color: "#81c784", padding: "2px 6px", borderRadius: 4 },
+  deleteKeyBtn: { background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.3)", color: "#ef9a9a", width: 22, height: 22, borderRadius: 4, cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" },
   cancelBtn: { width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#546e7a", fontSize: 12, cursor: "pointer", marginTop: 6 },
 };
 
