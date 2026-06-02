@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 // ══════════════════════════════════════════════════════════════════════════════
 const T = {
   es: {
-    appTitle: "CREW EVAL", appSubtitle: "Autoevaluación Marítima Profesional",
+    appTitle: "CREW EVAL", appSubtitle: "Autoevaluación Marítima Tripulantes",
     selectTopic: "Selecciona un Tema", selectTopicSub: "Elige el área que deseas evaluar hoy",
     questions: "preguntas", minPass: "Mínimo 80% para ser competente",
     question: "Pregunta", of: "de", next: "Siguiente", finish: "Finalizar",
