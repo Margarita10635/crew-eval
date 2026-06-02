@@ -143,10 +143,11 @@ const CUSTOM_QUESTIONS = {
 // PAYMENT CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
 const PAYMENT_CONFIG = {
-  clabe: "000000000000000000",
-  bank: "Banco / OXXO Pay",
-  whatsapp: "521234567890",
+  clabe: "722969013321418745",
+  bank: "Mercado Pago",
+  whatsapp: "529841377404",
   price: "$50 MXN",
+  mplink: "https://mpago.la/1j3E5vp",
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -575,12 +576,11 @@ export default function App() {
                 <p style={S.payDesc}>{t.unlockDesc}</p>
                 <div style={S.payStep}><span style={S.payStepNum}>1</span>
                   <div>
-                    <div style={S.payStepLabel}>{lang === "es" ? "Transfiere" : "Transfer"} <strong style={{color:"#4fc3f7"}}>{PAYMENT_CONFIG.price}</strong> {lang === "es" ? "a:" : "to:"}</div>
-                    <div style={S.bankBox}>
-                      <div style={S.bankLabel}>{t.bankInfo}</div>
-                      <div style={S.bankNum}>{PAYMENT_CONFIG.clabe}</div>
-                      <div style={S.bankName}>{PAYMENT_CONFIG.bank}</div>
-                    </div>
+                    <div style={S.payStepLabel}>{lang === "es" ? "Paga directo con Mercado Pago:" : "Pay directly with Mercado Pago:"}</div>
+                    <a href={PAYMENT_CONFIG.mplink} target="_blank" rel="noreferrer" style={S.mpBtn} onClick={e => e.stopPropagation()}>
+                      💳 {lang === "es" ? "Pagar $50 MXN aquí" : "Pay $50 MXN here"}
+                    </a>
+                    <div style={S.payStepLabel}>{lang === "es" ? "O transfiere a:" : "Or transfer to:"} <strong style={{color:"#4fc3f7"}}>CVU: {PAYMENT_CONFIG.clabe}</strong> · {PAYMENT_CONFIG.bank}</div>
                   </div>
                 </div>
                 <div style={S.payStep}><span style={S.payStepNum}>2</span>
@@ -747,6 +747,7 @@ const S = {
   keySuccessMsg: { color: "#81c784", fontSize: 12, fontWeight: 600, margin: "0 0 7px" },
   activateBtn: { width: "100%", padding: "12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #0066cc, #00aaff)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 8 },
   demoKeyHint: { fontSize: 10, color: "#546e7a", fontFamily: "monospace", margin: "6px 0 0", textAlign: "center" },
+  mpBtn: { display: "block", textAlign: "center", background: "linear-gradient(135deg, #00b1ea, #009ee3)", color: "#fff", fontWeight: 700, fontSize: 14, padding: "11px 16px", borderRadius: 9, textDecoration: "none", margin: "8px 0", cursor: "pointer" },
   cancelBtn: { width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#546e7a", fontSize: 12, cursor: "pointer", marginTop: 6 },
 };
 
