@@ -435,12 +435,9 @@ export default function App() {
               <div style={S.optionsList}>
                 {questions[current].options.map((opt, idx) => {
                   let st = S.option;
-                  if (selected !== null) {
-                    if (idx === questions[current].answer) st = { ...S.option, ...S.optCorrect };
-                    else if (idx === selected) st = { ...S.option, ...S.optWrong };
-                  }
+                  if (idx === selected) st = { ...S.option, ...S.optSelected };
                   return (
-                    <button key={idx} style={st} onClick={() => { if (selected === null) setSelected(idx); }}>
+                    <button key={idx} style={st} onClick={() => setSelected(idx)}>
                       <span style={S.optLetter}>{["A","B","C","D"][idx]}</span>
                       <span style={S.optText}>{opt}</span>
                     </button>
@@ -491,7 +488,6 @@ export default function App() {
                   <div key={i} style={S.reviewItemFail}>
                     <p style={S.reviewQ}>{questions[a.qi].q}</p>
                     <p style={{ ...S.reviewA, color: "#ef9a9a" }}>{t.yourAnswer}: {questions[a.qi].options[a.sel]}</p>
-                    <p style={S.reviewA}>{t.correctAnswer}: <strong>{questions[a.qi].options[a.correct]}</strong></p>
                   </div>
                 ))}
               </div>
@@ -678,6 +674,7 @@ const S = {
   questionText: { fontSize: 14, fontWeight: 600, color: "#e3f2fd", lineHeight: 1.5, marginBottom: 13 },
   optionsList: { display: "flex", flexDirection: "column", gap: 8 },
   option: { display: "flex", alignItems: "center", gap: 9, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 13px", cursor: "pointer", textAlign: "left", color: "#cfd8dc", fontSize: 13, transition: "all 0.2s" },
+  optSelected: { background: "rgba(0,120,255,0.15)", border: "1px solid rgba(0,120,255,0.6)", color: "#e3f2fd" },
   optCorrect: { background: "rgba(0,200,100,0.12)", border: "1px solid rgba(0,200,100,0.45)", color: "#a5d6a7" },
   optWrong: { background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.4)", color: "#ef9a9a" },
   optLetter: { fontWeight: 700, color: "#4fc3f7", minWidth: 16, fontSize: 11 },
