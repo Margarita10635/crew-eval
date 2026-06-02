@@ -1,0 +1,93 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0a0f1e"/>
+  <circle cx="100" cy="60" r="2.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="230" cy="95" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="350" cy="35" r="2.5" fill="#ffffff" opacity="0.7"/>
+  <circle cx="550" cy="70" r="2" fill="#ffffff" opacity="0.4"/>
+  <circle cx="800" cy="45" r="2.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="980" cy="80" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="1100" cy="25" r="2.5" fill="#ffffff" opacity="0.7"/>
+  <circle cx="160" cy="140" r="2" fill="#ffffff" opacity="0.3"/>
+  <circle cx="900" cy="110" r="2" fill="#ffffff" opacity="0.4"/>
+  <circle cx="700" cy="30" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="1050" cy="130" r="2" fill="#ffffff" opacity="0.3"/>
+
+  <path d="M0 530 Q300 490 600 520 Q900 550 1200 510 L1200 630 L0 630 Z" fill="#0d1a3a"/>
+  <path d="M0 570 Q300 545 600 562 Q900 580 1200 552 L1200 630 L0 630 Z" fill="#0a1528"/>
+  <path d="M40 534 Q140 520 240 534" fill="none" stroke="#1a4080" stroke-width="2.5" opacity="0.6"/>
+  <path d="M360 542 Q500 526 640 540" fill="none" stroke="#1a4080" stroke-width="2.5" opacity="0.5"/>
+  <path d="M740 522 Q880 508 1020 521" fill="none" stroke="#1a4080" stroke-width="2.5" opacity="0.6"/>
+
+  <g transform="translate(140,290)" opacity="0.12">
+    <circle cx="0" cy="-50" r="20" fill="none" stroke="#4fc3f7" stroke-width="5"/>
+    <line x1="0" y1="-30" x2="0" y2="50" stroke="#4fc3f7" stroke-width="5"/>
+    <line x1="-36" y1="-14" x2="36" y2="-14" stroke="#4fc3f7" stroke-width="5"/>
+    <path d="M-30 50 Q0 34 30 50" fill="none" stroke="#4fc3f7" stroke-width="5"/>
+    <circle cx="-30" cy="50" r="7" fill="#4fc3f7"/>
+    <circle cx="30" cy="50" r="7" fill="#4fc3f7"/>
+  </g>
+
+  <g transform="translate(1060,290)" opacity="0.12">
+    <circle cx="0" cy="-50" r="20" fill="none" stroke="#4fc3f7" stroke-width="5"/>
+    <line x1="0" y1="-30" x2="0" y2="50" stroke="#4fc3f7" stroke-width="5"/>
+    <line x1="-36" y1="-14" x2="36" y2="-14" stroke="#4fc3f7" stroke-width="5"/>
+    <path d="M-30 50 Q0 34 30 50" fill="none" stroke="#4fc3f7" stroke-width="5"/>
+    <circle cx="-30" cy="50" r="7" fill="#4fc3f7"/>
+    <circle cx="30" cy="50" r="7" fill="#4fc3f7"/>
+  </g>
+
+  <g transform="translate(600,300)">
+    <path d="M-38 -68 Q-70 18 -64 126" fill="#111111"/>
+    <path d="M38 -68 Q70 18 64 126" fill="#111111"/>
+    <path d="M-32 -72 Q-56 26 -50 126" fill="#1a1a1a"/>
+    <path d="M32 -72 Q56 26 50 126" fill="#1a1a1a"/>
+    <path d="M-50 24 L-60 180 L60 180 L50 24 Z" fill="#f0f4f8"/>
+    <path d="M-16 24 L-9 54 L0 38 L9 54 L16 24" fill="#f0f4f8" stroke="#dde2e8" stroke-width="1"/>
+    <rect x="-66" y="28" width="26" height="21" rx="3" fill="#e8eef4"/>
+    <rect x="-66" y="28" width="26" height="6" rx="2" fill="#f0c040"/>
+    <rect x="-66" y="36" width="26" height="6" rx="2" fill="#f0c040"/>
+    <rect x="-66" y="44" width="26" height="4" rx="2" fill="#f0c040"/>
+    <rect x="40" y="28" width="26" height="21" rx="3" fill="#e8eef4"/>
+    <rect x="40" y="28" width="26" height="6" rx="2" fill="#f0c040"/>
+    <rect x="40" y="36" width="26" height="6" rx="2" fill="#f0c040"/>
+    <rect x="40" y="44" width="26" height="4" rx="2" fill="#f0c040"/>
+    <rect x="-66" y="50" width="20" height="74" rx="7" fill="#f0f4f8"/>
+    <rect x="46" y="50" width="20" height="74" rx="7" fill="#f0f4f8"/>
+    <rect x="-66" y="116" width="20" height="10" rx="3" fill="#dde2e8"/>
+    <rect x="46" y="116" width="20" height="10" rx="3" fill="#dde2e8"/>
+    <circle cx="0" cy="64" r="2.5" fill="#c8d0d8"/>
+    <circle cx="0" cy="86" r="2.5" fill="#c8d0d8"/>
+    <circle cx="0" cy="108" r="2.5" fill="#c8d0d8"/>
+    <circle cx="0" cy="130" r="2.5" fill="#c8d0d8"/>
+    <rect x="-12" y="-4" width="24" height="30" rx="10" fill="#c8956c"/>
+    <ellipse cx="0" cy="-40" rx="36" ry="43" fill="#c8956c"/>
+    <path d="M-36 -60 Q-54 -9 -48 62" fill="#111111" opacity="0.95"/>
+    <path d="M36 -60 Q54 -9 48 62" fill="#111111" opacity="0.95"/>
+    <ellipse cx="0" cy="-77" rx="38" ry="18" fill="#111111"/>
+    <rect x="-50" y="-104" width="100" height="23" rx="5" fill="#0d1a3e"/>
+    <rect x="-60" y="-86" width="120" height="9" rx="3" fill="#0d1a3e"/>
+    <rect x="-50" y="-90" width="100" height="7" rx="2" fill="#f0c040"/>
+    <circle cx="0" cy="-93" r="11" fill="#f0c040"/>
+    <text x="0" y="-88" text-anchor="middle" font-size="14" fill="#0d1a3e" font-weight="bold" font-family="Arial">⚓</text>
+    <ellipse cx="-14" cy="-40" rx="6" ry="7" fill="#ffffff"/>
+    <ellipse cx="14" cy="-40" rx="6" ry="7" fill="#ffffff"/>
+    <circle cx="-14" cy="-40" r="4" fill="#2a1a08"/>
+    <circle cx="14" cy="-40" r="4" fill="#2a1a08"/>
+    <circle cx="-12" cy="-42" r="1.5" fill="#ffffff"/>
+    <circle cx="16" cy="-42" r="1.5" fill="#ffffff"/>
+    <path d="M-21 -51 Q-14 -57 -7 -52" fill="none" stroke="#111111" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M7 -52 Q14 -57 21 -51" fill="none" stroke="#111111" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M-11 -24 Q0 -18 11 -24" fill="#c06050"/>
+    <path d="M-11 -24 Q0 -30 11 -24" fill="none" stroke="#a05040" stroke-width="2"/>
+    <ellipse cx="-24" cy="-30" rx="9" ry="5" fill="#e8907a" opacity="0.25"/>
+    <ellipse cx="24" cy="-30" rx="9" ry="5" fill="#e8907a" opacity="0.25"/>
+  </g>
+
+  <text x="600" y="76" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#4fc3f7" letter-spacing="8">CREW EVAL</text>
+  <text x="600" y="114" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#78909c" letter-spacing="4">⚓  AUTOEVALUACIÓN MARÍTIMA TRIPULANTES  ⚓</text>
+  <line x1="240" y1="128" x2="960" y2="128" stroke="#1a4080" stroke-width="2"/>
+
+  <rect x="200" y="545" width="800" height="68" rx="14" fill="#0d1a3e" opacity="0.95"/>
+  <text x="600" y="572" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#4fc3f7">Evalúate · Aprende inglés · Demuestra tus conocimientos</text>
+  <text x="600" y="602" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#78909c">22 temas · $50 MXN · Español &amp; English · 1 tema GRATIS</text>
+</svg>
