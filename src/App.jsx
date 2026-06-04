@@ -954,7 +954,8 @@ const S = {
   sectionSub: { color: "#78909c", fontSize: 12, margin: "0 0 8px" },
   demoNote: { display: "inline-block", background: "rgba(255,193,7,0.1)", border: "1px solid rgba(255,193,7,0.3)", color: "#ffc107", fontSize: 10, padding: "3px 10px", borderRadius: 20 },
 
-  noBanner: { background: "rgba(255,160,0,0.1)", border: "1px solid rgba(255,160,0,0.3)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#ffb74d", marginBottom: 12, textAlign: "center" }, border: "1px solid rgba(255,193,7,0.2)", borderRadius: 10, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#ffc107", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "space-between" },
+  noBanner: { background: "rgba(255,160,0,0.1)", border: "1px solid rgba(255,160,0,0.3)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#ffb74d", marginBottom: 12, textAlign: "center" },
+  coinBanner: { background: "rgba(255,193,7,0.07)", border: "1px solid rgba(255,193,7,0.2)", borderRadius: 10, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#ffc107", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "space-between" },
   redeemSmallBtn: { background: "rgba(255,193,7,0.15)", border: "1px solid rgba(255,193,7,0.4)", color: "#ffc107", padding: "5px 12px", borderRadius: 8, cursor: "pointer", fontSize: 11, fontWeight: 700 },
 
   topicGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(126px, 1fr))", gap: 9, marginBottom: 14 },
