@@ -361,6 +361,10 @@ export default function App() {
   const isUnlocked = (topic) => topic.free || coinTopics.includes(topic.id) || ((access[topic.id]?.attemptsLeft || 0) > 0);
 
   const handleTopicSelect = (topic) => {
+    if (!profile) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     if (isUnlocked(topic)) { startEval(topic); return; }
     setModalTab("pay"); setKeyInput(""); setKeyError(""); setKeySuccess("");
     setShowModal(topic);
@@ -611,6 +615,11 @@ export default function App() {
               <p style={S.sectionSub}>{t.selectTopicSub}</p>
               <div style={S.demoNote}>{t.demoNote}</div>
             </div>
+            {!profile && (
+              <div style={S.noBanner}>
+                ⬆️ {lang === "es" ? "Ingresa tus datos arriba y presiona 'Ver temas y comenzar' para acceder a las evaluaciones" : "Enter your details above and press 'See topics and start' to access evaluations"}
+              </div>
+            )}
             <div style={S.coinBanner}>
               <span>🪙 {t.coinInfo}</span>
               {coins >= 10 && (
@@ -624,7 +633,7 @@ export default function App() {
                 const left = acc?.attemptsLeft ?? 0;
                 const coinUnlocked = coinTopics.includes(topic.id);
                 return (
-                  <button key={topic.id} style={{ ...S.topicCard, ...(unlocked ? S.topicUnlocked : {}) }}
+                  <button key={topic.id} style={{ ...S.topicCard, ...(unlocked ? S.topicUnlocked : {}), ...(!profile ? S.topicNoProfile : {}) }}
                     onClick={() => handleTopicSelect(topic)}>
                     <div style={S.topicBadge}>
                       {topic.free
@@ -945,12 +954,12 @@ const S = {
   sectionSub: { color: "#78909c", fontSize: 12, margin: "0 0 8px" },
   demoNote: { display: "inline-block", background: "rgba(255,193,7,0.1)", border: "1px solid rgba(255,193,7,0.3)", color: "#ffc107", fontSize: 10, padding: "3px 10px", borderRadius: 20 },
 
-  coinBanner: { background: "rgba(255,193,7,0.07)", border: "1px solid rgba(255,193,7,0.2)", borderRadius: 10, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#ffc107", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "space-between" },
+  noBanner: { background: "rgba(255,160,0,0.1)", border: "1px solid rgba(255,160,0,0.3)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#ffb74d", marginBottom: 12, textAlign: "center" }, border: "1px solid rgba(255,193,7,0.2)", borderRadius: 10, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#ffc107", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "space-between" },
   redeemSmallBtn: { background: "rgba(255,193,7,0.15)", border: "1px solid rgba(255,193,7,0.4)", color: "#ffc107", padding: "5px 12px", borderRadius: 8, cursor: "pointer", fontSize: 11, fontWeight: 700 },
 
   topicGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(126px, 1fr))", gap: 9, marginBottom: 14 },
   topicCard: { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,120,255,0.15)", borderRadius: 11, padding: "12px 8px", cursor: "pointer", textAlign: "center", position: "relative", color: "#e8eaf6", overflow: "hidden", transition: "all 0.2s" },
-  topicUnlocked: { border: "1px solid rgba(0,200,100,0.2)", background: "rgba(0,200,100,0.04)" },
+  topicNoProfile: { opacity: 0.5, cursor: "not-allowed" },
   topicIcon: { fontSize: 28, marginBottom: 5 },
   topicName: { fontSize: 10, fontWeight: 600, color: "#cfd8dc", lineHeight: 1.3, marginBottom: 3 },
   topicMeta: { fontSize: 9, color: "#546e7a" },
