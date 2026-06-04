@@ -457,6 +457,128 @@ export default function App() {
         {/* HOME */}
         {screen === "home" && (
           <div style={S.fadeIn}>
+
+            {/* CAPTAIN HERO + REGISTER INLINE */}
+            {!profile ? (
+              <div style={S.heroCard}>
+                {/* Captain SVG */}
+                <svg width="120" height="160" viewBox="0 0 240 300" style={{display:"block", margin:"0 auto 8px"}}>
+                  <rect width="240" height="300" fill="transparent"/>
+                  <path d="M80 100 Q60 150 64 240" fill="#111111"/>
+                  <path d="M160 100 Q180 150 176 240" fill="#111111"/>
+                  <path d="M90 120 Q120 130 150 120 L154 240 L86 240 Z" fill="#f0f4f8"/>
+                  <rect x="62" y="122" width="32" height="24" rx="4" fill="#e8eef4"/>
+                  <rect x="62" y="122" width="32" height="7" rx="2" fill="#f0c040"/>
+                  <rect x="62" y="131" width="32" height="7" rx="2" fill="#f0c040"/>
+                  <rect x="62" y="140" width="32" height="5" rx="2" fill="#f0c040"/>
+                  <rect x="146" y="122" width="32" height="24" rx="4" fill="#e8eef4"/>
+                  <rect x="146" y="122" width="32" height="7" rx="2" fill="#f0c040"/>
+                  <rect x="146" y="131" width="32" height="7" rx="2" fill="#f0c040"/>
+                  <rect x="146" y="140" width="32" height="5" rx="2" fill="#f0c040"/>
+                  <rect x="62" y="146" width="26" height="60" rx="8" fill="#f0f4f8"/>
+                  <rect x="152" y="146" width="26" height="60" rx="8" fill="#f0f4f8"/>
+                  <circle cx="120" cy="122" r="2.5" fill="#c8d0d8"/>
+                  <circle cx="120" cy="140" r="2.5" fill="#c8d0d8"/>
+                  <circle cx="120" cy="158" r="2.5" fill="#c8d0d8"/>
+                  <rect x="106" y="84" width="28" height="38" rx="10" fill="#c8956c"/>
+                  <ellipse cx="120" cy="60" rx="38" ry="42" fill="#c8956c"/>
+                  <path d="M82 72 Q68 110 72 190" fill="#111111" opacity="0.95"/>
+                  <path d="M158 72 Q172 110 168 190" fill="#111111" opacity="0.95"/>
+                  <ellipse cx="120" cy="22" rx="40" ry="18" fill="#111111"/>
+                  <rect x="68" y="-4" width="104" height="24" rx="5" fill="#0d1a3e"/>
+                  <rect x="58" y="16" width="124" height="10" rx="3" fill="#0d1a3e"/>
+                  <rect x="68" y="12" width="104" height="8" rx="2" fill="#f0c040"/>
+                  <circle cx="120" cy="6" r="12" fill="#f0c040"/>
+                  <text x="120" y="11" textAnchor="middle" fontSize="14" fill="#0d1a3e" fontWeight="bold">⚓</text>
+                  <ellipse cx="104" cy="58" rx="7" ry="8" fill="#ffffff"/>
+                  <ellipse cx="136" cy="58" rx="7" ry="8" fill="#ffffff"/>
+                  <circle cx="104" cy="58" r="4.5" fill="#2a1a08"/>
+                  <circle cx="136" cy="58" r="4.5" fill="#2a1a08"/>
+                  <circle cx="106" cy="56" r="1.5" fill="#ffffff"/>
+                  <circle cx="138" cy="56" r="1.5" fill="#ffffff"/>
+                  <path d="M96 46 Q104 40 112 46" fill="none" stroke="#111111" strokeWidth="3" strokeLinecap="round"/>
+                  <path d="M128 46 Q136 40 144 46" fill="none" stroke="#111111" strokeWidth="3" strokeLinecap="round"/>
+                  <path d="M109 76 Q120 82 131 76" fill="#c06050"/>
+                  <path d="M109 76 Q120 70 131 76" fill="none" stroke="#a05040" strokeWidth="2"/>
+                  <ellipse cx="92" cy="68" rx="10" ry="6" fill="#e8907a" opacity="0.25"/>
+                  <ellipse cx="148" cy="68" rx="10" ry="6" fill="#e8907a" opacity="0.25"/>
+                </svg>
+
+                <h2 style={S.heroTitle}>{lang === "es" ? "¡Bienvenido a CREW EVAL!" : "Welcome to CREW EVAL!"}</h2>
+                <p style={S.heroSub}>{lang === "es" ? "Ingresa tus datos para comenzar tu evaluación marítima" : "Enter your details to start your maritime evaluation"}</p>
+
+                {/* Form fields */}
+                <div style={S.inlineForm}>
+                  <div style={S.inlineRow}>
+                    <div style={S.fieldGroup}>
+                      <label style={S.fieldLabel}>👤 {lang === "es" ? "Nombre completo" : "Full name"} <span style={{color:"#ef9a9a"}}>*</span></label>
+                      <input style={{ ...S.fieldInput, ...(regErrors.nombre ? S.fieldError : {}) }}
+                        placeholder={lang === "es" ? "Tu nombre" : "Your name"}
+                        value={regForm.nombre}
+                        onChange={e => { setRegForm({...regForm, nombre: e.target.value}); setRegErrors({...regErrors, nombre: false}); }}
+                      />
+                    </div>
+                    <div style={S.fieldGroup}>
+                      <label style={S.fieldLabel}>📱 {lang === "es" ? "Teléfono" : "Phone"} <span style={{color:"#ef9a9a"}}>*</span></label>
+                      <input style={{ ...S.fieldInput, ...(regErrors.tel ? S.fieldError : {}) }}
+                        placeholder={lang === "es" ? "Tu teléfono" : "Your phone"} type="tel"
+                        value={regForm.tel}
+                        onChange={e => { setRegForm({...regForm, tel: e.target.value}); setRegErrors({...regErrors, tel: false}); }}
+                      />
+                    </div>
+                  </div>
+                  <div style={S.inlineRow}>
+                    <div style={S.fieldGroup}>
+                      <label style={S.fieldLabel}>📧 {lang === "es" ? "Correo" : "Email"} <span style={S.optLabel}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+                      <input style={S.fieldInput} placeholder={lang === "es" ? "Tu correo" : "Your email"} type="email"
+                        value={regForm.correo} onChange={e => setRegForm({...regForm, correo: e.target.value})} />
+                    </div>
+                    <div style={S.fieldGroup}>
+                      <label style={S.fieldLabel}>🚢 {lang === "es" ? "Nombre del buque" : "Vessel"} <span style={S.optLabel}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+                      <input style={S.fieldInput} placeholder={lang === "es" ? "Nombre del buque" : "Vessel name"}
+                        value={regForm.buque} onChange={e => setRegForm({...regForm, buque: e.target.value})} />
+                    </div>
+                  </div>
+                  <div style={S.inlineRow}>
+                    <div style={S.fieldGroup}>
+                      <label style={S.fieldLabel}>⚓ {lang === "es" ? "Rango" : "Rank"} <span style={S.optLabel}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+                      <input style={S.fieldInput} placeholder={lang === "es" ? "Marinero, Oficial..." : "Seaman, Officer..."}
+                        value={regForm.rango} onChange={e => setRegForm({...regForm, rango: e.target.value})} />
+                    </div>
+                    <div style={S.fieldGroup}>
+                      <label style={S.fieldLabel}>🏢 {lang === "es" ? "Empresa" : "Company"} <span style={S.optLabel}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+                      <input style={S.fieldInput} placeholder={lang === "es" ? "Tu empresa naviera" : "Your shipping company"}
+                        value={regForm.empresa} onChange={e => setRegForm({...regForm, empresa: e.target.value})} />
+                    </div>
+                  </div>
+                  {(regErrors.nombre || regErrors.tel) && (
+                    <p style={{color:"#ef9a9a", fontSize:11, textAlign:"center", margin:"0 0 8px"}}>
+                      ⚠️ {lang === "es" ? "Nombre y teléfono son obligatorios" : "Name and phone are required"}
+                    </p>
+                  )}
+                  <button style={S.startBtn} onClick={handleRegister}>
+                    {lang === "es" ? "Ver temas y comenzar →" : "See topics and start →"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Profile bar when already registered */
+              <div style={S.profileBar}>
+                <div style={S.profileBarInfo}>
+                  <span style={S.profileBarAvatar}>👤</span>
+                  <div>
+                    <div style={S.profileBarName}>{profile.nombre}</div>
+                    <div style={S.profileBarMeta}>
+                      {profile.rango && `${profile.rango} · `}
+                      {profile.buque && `🚢 ${profile.buque} · `}
+                      {profile.empresa && `🏢 ${profile.empresa}`}
+                    </div>
+                  </div>
+                </div>
+                <button style={S.editProfileBtn} onClick={() => setShowRegister(true)}>✏️</button>
+              </div>
+            )}
+
             <div style={S.homeTitle}>
               <h2 style={S.sectionTitle}>{t.selectTopic}</h2>
               <p style={S.sectionSub}>{t.selectTopicSub}</p>
@@ -982,6 +1104,19 @@ const S = {
   activateBtn: { width: "100%", padding: "12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #0066cc, #00aaff)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 8 },
   demoKeyHint: { fontSize: 10, color: "#546e7a", fontFamily: "monospace", margin: "6px 0 0", textAlign: "center" },
   mpBtn: { display: "block", textAlign: "center", background: "linear-gradient(135deg, #00b1ea, #009ee3)", color: "#fff", fontWeight: 700, fontSize: 14, padding: "11px 16px", borderRadius: 9, textDecoration: "none", margin: "8px 0", cursor: "pointer" },
+  heroCard: { background: "linear-gradient(135deg, rgba(0,40,100,0.6), rgba(10,15,30,0.8))", border: "1px solid rgba(0,120,255,0.25)", borderRadius: 16, padding: "24px 20px 20px", marginBottom: 18, textAlign: "center" },
+  heroTitle: { fontSize: 20, fontWeight: 700, color: "#e3f2fd", margin: "0 0 6px", fontFamily: "'Georgia', serif" },
+  heroSub: { fontSize: 12, color: "#78909c", margin: "0 0 18px" },
+  inlineForm: { textAlign: "left" },
+  inlineRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 0 },
+  optLabel: { fontSize: 10, color: "#546e7a" },
+  startBtn: { width: "100%", padding: "13px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #0066cc, #00aaff)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", marginTop: 6 },
+  profileBar: { background: "rgba(0,200,100,0.06)", border: "1px solid rgba(0,200,100,0.2)", borderRadius: 12, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" },
+  profileBarInfo: { display: "flex", alignItems: "center", gap: 10 },
+  profileBarAvatar: { fontSize: 24 },
+  profileBarName: { fontSize: 14, fontWeight: 600, color: "#e3f2fd" },
+  profileBarMeta: { fontSize: 11, color: "#546e7a", marginTop: 2 },
+  editProfileBtn: { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#78909c", padding: "6px 10px", borderRadius: 8, cursor: "pointer", fontSize: 13 },
   profileBtn: { background: "rgba(0,200,100,0.1)", border: "1px solid rgba(0,200,100,0.3)", color: "#81c784", padding: "5px 10px", borderRadius: 20, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 },
   profileName: { maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   fieldGroup: { marginBottom: 10 },
