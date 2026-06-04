@@ -258,6 +258,14 @@ export default function App() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [selected, setSelected] = useState(null);
+
+  // Registration
+  const [profile, setProfile] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("creweval_profile") || "null"); } catch { return null; }
+  });
+  const [showRegister, setShowRegister] = useState(false);
+  const [regForm, setRegForm] = useState({ nombre: "", tel: "", correo: "", buque: "", rango: "", empresa: "" });
+  const [regErrors, setRegErrors] = useState({});
   const [showModal, setShowModal] = useState(null);
   const [modalTab, setModalTab] = useState("pay");
   const [keyInput, setKeyInput] = useState("");
@@ -302,6 +310,22 @@ export default function App() {
   const coins = state.coins || 0;
   const access = state.access || {};
   const coinTopics = state.coinTopics || [];
+
+  // Show register modal on first visit
+  useEffect(() => {
+    if (!profile) setShowRegister(true);
+  }, []);
+
+  const handleRegister = () => {
+    const errors = {};
+    if (!regForm.nombre.trim()) errors.nombre = true;
+    if (!regForm.tel.trim()) errors.tel = true;
+    if (Object.keys(errors).length > 0) { setRegErrors(errors); return; }
+    const p = { ...regForm, fecha: new Date().toLocaleDateString() };
+    localStorage.setItem("creweval_profile", JSON.stringify(p));
+    setProfile(p);
+    setShowRegister(false);
+  };
 
   const updateState = (patch) => {
     const next = { ...state, ...patch };
@@ -414,6 +438,11 @@ export default function App() {
             </div>
           </div>
           <div style={S.headerRight}>
+            {profile && (
+              <button style={S.profileBtn} onClick={() => setShowRegister(true)}>
+                👤 <span style={S.profileName}>{profile.nombre.split(" ")[0]}</span>
+              </button>
+            )}
             <button style={S.adminBtn} onClick={() => { setShowAdmin(true); setAdminAuth(false); setAdminPass(""); setNewlyGeneratedKey(""); }}>⚙️</button>
             <button style={S.coinBtn} onClick={() => setShowWallet(true)}>
               🪙 <span style={S.coinCount}>{coins}</span>
@@ -669,6 +698,86 @@ export default function App() {
           </div>
         </div>
       )}
+      {/* ── REGISTER MODAL ── */}
+      {showRegister && (
+        <div style={S.overlay} onClick={profile ? () => setShowRegister(false) : null}>
+          <div style={{ ...S.modal, maxWidth: 380 }} onClick={e => e.stopPropagation()}>
+            <div style={S.modalIcon}>⚓</div>
+            <h3 style={S.modalTitle}>{profile ? "Tu Perfil" : lang === "es" ? "Bienvenido a CREW EVAL" : "Welcome to CREW EVAL"}</h3>
+            <p style={{ fontSize: 12, color: "#78909c", textAlign: "center", margin: "0 0 16px" }}>
+              {lang === "es" ? "Ingresa tus datos para comenzar" : "Enter your details to start"}
+            </p>
+
+            {/* Nombre - obligatorio */}
+            <div style={S.fieldGroup}>
+              <label style={S.fieldLabel}>👤 {lang === "es" ? "Nombre completo" : "Full name"} <span style={{color:"#ef9a9a"}}>*</span></label>
+              <input style={{ ...S.fieldInput, ...(regErrors.nombre ? S.fieldError : {}) }}
+                placeholder={lang === "es" ? "Tu nombre completo" : "Your full name"}
+                value={regForm.nombre}
+                onChange={e => { setRegForm({...regForm, nombre: e.target.value}); setRegErrors({...regErrors, nombre: false}); }}
+              />
+            </div>
+
+            {/* Teléfono - obligatorio */}
+            <div style={S.fieldGroup}>
+              <label style={S.fieldLabel}>📱 {lang === "es" ? "Teléfono" : "Phone"} <span style={{color:"#ef9a9a"}}>*</span></label>
+              <input style={{ ...S.fieldInput, ...(regErrors.tel ? S.fieldError : {}) }}
+                placeholder={lang === "es" ? "Tu número de teléfono" : "Your phone number"}
+                value={regForm.tel} type="tel"
+                onChange={e => { setRegForm({...regForm, tel: e.target.value}); setRegErrors({...regErrors, tel: false}); }}
+              />
+            </div>
+
+            {/* Correo - opcional */}
+            <div style={S.fieldGroup}>
+              <label style={S.fieldLabel}>📧 {lang === "es" ? "Correo electrónico" : "Email"} <span style={{color:"#546e7a", fontSize:10}}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+              <input style={S.fieldInput} placeholder={lang === "es" ? "Tu correo" : "Your email"}
+                value={regForm.correo} type="email"
+                onChange={e => setRegForm({...regForm, correo: e.target.value})}
+              />
+            </div>
+
+            {/* Buque - opcional */}
+            <div style={S.fieldGroup}>
+              <label style={S.fieldLabel}>🚢 {lang === "es" ? "Nombre del buque" : "Vessel name"} <span style={{color:"#546e7a", fontSize:10}}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+              <input style={S.fieldInput} placeholder={lang === "es" ? "Nombre del buque" : "Vessel name"}
+                value={regForm.buque}
+                onChange={e => setRegForm({...regForm, buque: e.target.value})}
+              />
+            </div>
+
+            {/* Rango - opcional */}
+            <div style={S.fieldGroup}>
+              <label style={S.fieldLabel}>⚓ {lang === "es" ? "Rango" : "Rank"} <span style={{color:"#546e7a", fontSize:10}}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+              <input style={S.fieldInput} placeholder={lang === "es" ? "Ej: Marinero, Cocinero, Oficial..." : "E.g: Seaman, Cook, Officer..."}
+                value={regForm.rango}
+                onChange={e => setRegForm({...regForm, rango: e.target.value})}
+              />
+            </div>
+
+            {/* Empresa - opcional */}
+            <div style={S.fieldGroup}>
+              <label style={S.fieldLabel}>🏢 {lang === "es" ? "Empresa naviera" : "Shipping company"} <span style={{color:"#546e7a", fontSize:10}}>{lang === "es" ? "(opcional)" : "(optional)"}</span></label>
+              <input style={S.fieldInput} placeholder={lang === "es" ? "Nombre de tu empresa" : "Your company name"}
+                value={regForm.empresa}
+                onChange={e => setRegForm({...regForm, empresa: e.target.value})}
+              />
+            </div>
+
+            {(regErrors.nombre || regErrors.tel) && (
+              <p style={{ color: "#ef9a9a", fontSize: 11, textAlign: "center", margin: "0 0 8px" }}>
+                ⚠️ {lang === "es" ? "Nombre y teléfono son obligatorios" : "Name and phone are required"}
+              </p>
+            )}
+
+            <button style={S.activateBtn} onClick={handleRegister}>
+              {profile ? (lang === "es" ? "Guardar cambios" : "Save changes") : (lang === "es" ? "Comenzar →" : "Start →")}
+            </button>
+            {profile && <button style={S.cancelBtn} onClick={() => setShowRegister(false)}>{t.cancelBtn}</button>}
+          </div>
+        </div>
+      )}
+
       {/* ── ADMIN MODAL ── */}
       {showAdmin && (
         <div style={S.overlay} onClick={() => setShowAdmin(false)}>
@@ -873,6 +982,12 @@ const S = {
   activateBtn: { width: "100%", padding: "12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #0066cc, #00aaff)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 8 },
   demoKeyHint: { fontSize: 10, color: "#546e7a", fontFamily: "monospace", margin: "6px 0 0", textAlign: "center" },
   mpBtn: { display: "block", textAlign: "center", background: "linear-gradient(135deg, #00b1ea, #009ee3)", color: "#fff", fontWeight: 700, fontSize: 14, padding: "11px 16px", borderRadius: 9, textDecoration: "none", margin: "8px 0", cursor: "pointer" },
+  profileBtn: { background: "rgba(0,200,100,0.1)", border: "1px solid rgba(0,200,100,0.3)", color: "#81c784", padding: "5px 10px", borderRadius: 20, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 },
+  profileName: { maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  fieldGroup: { marginBottom: 10 },
+  fieldLabel: { display: "block", fontSize: 11, color: "#90a4ae", marginBottom: 4, fontWeight: 600 },
+  fieldInput: { width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(0,120,255,0.2)", background: "rgba(0,0,0,0.3)", color: "#e3f2fd", fontSize: 13, boxSizing: "border-box", outline: "none" },
+  fieldError: { border: "1px solid rgba(255,80,80,0.5)", background: "rgba(255,80,80,0.05)" },
   adminBtn: { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#78909c", padding: "5px 10px", borderRadius: 6, cursor: "pointer", fontSize: 14 },
   adminSection: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: 14, marginBottom: 12 },
   adminSectionTitle: { fontSize: 13, fontWeight: 600, color: "#e3f2fd", margin: "0 0 8px" },
