@@ -151,8 +151,37 @@ const PAYMENT_CONFIG = {
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
-// ADMIN CONFIG
+// GOOGLE SHEETS INTEGRATION
 // ══════════════════════════════════════════════════════════════════════════════
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwndPUvMMYECNlfYNX2CSsf_X6rCoBA_llT6edjgmxnx1fHpIQpfDZDA8U_pmsptEWd/exec";
+
+async function sendResultsToSheets(profile, topic, lang, correctCount, totalQuestions) {
+  try {
+    const pct = Math.round((correctCount / totalQuestions) * 100);
+    const data = {
+      fecha: new Date().toLocaleString("es-MX"),
+      nombre: profile?.nombre || "Sin nombre",
+      telefono: profile?.tel || "",
+      correo: profile?.correo || "",
+      buque: profile?.buque || "",
+      rango: profile?.rango || "",
+      empresa: profile?.empresa || "",
+      tema: lang === "es" ? topic.nameEs : topic.nameEn,
+      calificacion: pct + "%",
+      competente: pct >= 80 ? "SÍ" : "NO",
+      correctas: correctCount,
+      incorrectas: totalQuestions - correctCount,
+    };
+    await fetch(SHEETS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    console.log("Sheets error:", err);
+  }
+}
 const ADMIN_PASSWORD = "Alfred@11";
 const ADMIN_KEYS_STORAGE = "creweval_admin_keys";
 
@@ -405,6 +434,9 @@ export default function App() {
         setCoinAnim(true);
         setTimeout(() => setCoinAnim(false), 3000);
       }
+      // Send results to Google Sheets
+      const correctTotal = newAnswers.filter(a => a.sel === a.correct).length;
+      sendResultsToSheets(profile, selectedTopic, lang, correctTotal, questions.length);
       setScreen("results");
     }
   };
