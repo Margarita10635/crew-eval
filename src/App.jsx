@@ -140,6 +140,48 @@ const CUSTOM_QUESTIONS = {
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// FALLBACK QUESTIONS — Temporales hasta agregar preguntas propias
+// ══════════════════════════════════════════════════════════════════════════════
+const Q = (q, options, answer) => ({ q, options, answer });
+const FALLBACK_QUESTIONS = {
+  1: [ // Contraincendio
+    Q("¿Cuál es el agente extintor más efectivo para fuego clase B?",["Agua","CO₂","Polvo ABC","Arena"],1),
+    Q("¿Qué significa la clase A en clasificación de fuegos?",["Líquidos inflamables","Materiales sólidos combustibles","Gases","Metales"],1),
+    Q("¿Cuál es la función del sistema CO₂ fijo en sala de máquinas?",["Enfriar equipos","Extinguir fuego desplazando oxígeno","Detectar humo","Alertar al puente"],1),
+    Q("¿Con qué frecuencia se realizan simulacros de incendio?",["Mensualmente","Semanalmente","Anualmente","Cada viaje"],0),
+    Q("¿Qué equipo es obligatorio al combatir un incendio?",["Solo guantes","Equipo bombero completo con EEBI","Casco y botas","Máscara de polvo"],1),
+    Q("¿Qué NO debe usarse en fuegos eléctricos?",["CO₂","Polvo ABC","Agua","Agente limpio"],2),
+    Q("¿Qué es el punto de inflamación de un líquido?",["Temperatura de ebullición","Temperatura mínima para emitir vapores inflamables","Temperatura de explosión","Temperatura de almacenamiento"],1),
+    Q("¿Qué normativa regula seguridad contra incendios en buques?",["MARPOL","SOLAS Cap II-2","STCW","ISM Code"],1),
+    Q("¿Qué acción se toma primero al descubrir un incendio?",["Intentar apagarlo","Dar la alarma","Evacuar","Cerrar puertas"],1),
+    Q("¿Para qué se usa la espuma AFFF?",["Fuegos clase A","Fuegos clase B","Fuegos eléctricos","Fuegos de metales"],1),
+    Q("¿Cuántas salidas debe tener mínimo cada espacio habitable?",["Una","Dos","Tres","Cuatro"],1),
+    Q("¿Qué es una línea de vida en lucha contra incendios?",["Manguera principal","Cabo guía en espacios con humo","Sistema de comunicación","Arnés de seguridad"],1),
+    Q("¿El triángulo del fuego está compuesto por?",["Calor, combustible y oxígeno","Llama, humo y calor","Combustible, ignición y propagación","Temperatura, presión y oxígeno"],0),
+    Q("¿Qué tipo de detector identifica partículas de combustión?",["Detector de calor","Detector iónico de humo","Detector de llama","Detector de gas"],1),
+    Q("¿Dónde debe estar el plan de control de incendios?",["Solo en el puente","Solo en máquinas","En lugares visibles y accesibles","En caja fuerte"],2),
+    Q("¿Qué es un fuego contenido?",["Fuego extinguido","Fuego que no se propagó más","Fuego bajo control con espuma","Fuego solo en metales"],1),
+    Q("¿Para qué sirve el sistema gas inerte en tanqueros?",["Enfriar carga","Mantener atmósfera no explosiva","Extinguir incendios","Ventilar máquinas"],1),
+    Q("¿Qué extintor se usa para grasas de cocina clase K?",["CO₂","Polvo ABC","Agente húmedo","Espuma AFFF"],2),
+    Q("¿Las puertas cortafuego deben mantenerse?",["Siempre abiertas","Cerradas normalmente","Abiertas de noche","Solo cerradas en emergencia"],1),
+    Q("¿Qué significa EEBI?",["Equipo de Búsqueda","Equipo de Emergencia Brigada Incendios","Equipo de Escape con Respiración de Emergencia","Equipo Estándar Bombero"],2),
+    Q("¿Cuál es la presión mínima en el colector contra incendios?",["1 bar","2.7 bar","5 bar","10 bar"],1),
+    Q("¿Qué sistema activa los rociadores automáticos?",["Orden capitán","Fusible térmico","Detector de humo central","Presión hidráulica"],1),
+    Q("¿Fuego clase C corresponde a?",["Metales","Grasas cocina","Gases inflamables","Sólidos"],2),
+    Q("¿Con qué se combate fuego de aceite en cocina?",["Agua a chorro","Cubrir con tapa y CO₂","Abrir ventanas","Agua pulverizada"],1),
+    Q("¿Qué objetivo tiene el sistema de detección de incendios?",["Extinguir fuego","Alertar tempranamente","Registrar temperatura","Activar CO₂ automático"],1),
+    Q("¿El fuego clase D corresponde a?",["Líquidos inflamables","Gases","Metales combustibles","Materiales sólidos"],2),
+    Q("¿Con qué frecuencia se inspecciona el equipo contra incendios?",["Antes de cada viaje","Mensualmente","Anualmente","Cuando autoridad lo ordene"],1),
+    Q("¿Qué es evacuación vertical en incendio?",["Subir por escaleras a cubierta","Moverse horizontal","Descender por amura","Usar bote salvavidas"],0),
+    Q("¿A qué temperatura trabaja un traje de aproximación?",["100°C","200°C","400°C con protección radiante","1000°C"],2),
+    Q("¿Dónde se encuentra el muster station?",["Sala de máquinas","Puente","Lugares de fácil acceso indicados en plan","Solo en buques de pasaje"],2),
+  ],
+};
+// For topics 2-22, use topic 1 questions shuffled as temporary fallback
+for (let i = 2; i <= 22; i++) {
+  if (!FALLBACK_QUESTIONS[i]) FALLBACK_QUESTIONS[i] = FALLBACK_QUESTIONS[1];
+}
 // PAYMENT CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
 const PAYMENT_CONFIG = {
@@ -228,13 +270,9 @@ function seededShuffle(arr) {
 // AI QUESTION GENERATOR
 // ══════════════════════════════════════════════════════════════════════════════
 async function generateQuestions(topic, lang, count = 30) {
-  const langLabel = lang === "es" ? "Spanish" : "English";
-  const topicName = lang === "es" ? topic.nameEs : topic.nameEn;
-
   // Use custom questions if available for this topic
   if (CUSTOM_QUESTIONS[topic.id] && CUSTOM_QUESTIONS[topic.id].length >= count) {
     const shuffled = seededShuffle(CUSTOM_QUESTIONS[topic.id]);
-    // Also shuffle the options within each question to avoid patterns
     return shuffled.slice(0, count).map(q => {
       const opts = [...q.options];
       const correctText = opts[q.answer];
@@ -243,26 +281,15 @@ async function generateQuestions(topic, lang, count = 30) {
     });
   }
 
-  // Otherwise use AI
-  const prompt = `You are a maritime training expert. Generate exactly ${count} multiple-choice questions about "${topicName}" for maritime crew self-assessment.
-IMPORTANT: Respond ONLY with a valid JSON array, no markdown, no explanation.
-Each question: {"q":"question in ${langLabel}","options":["A","B","C","D"],"answer":0}
-answer is the index (0-3) of the correct option. Make questions varied, practical and realistic for professional mariners. Avoid repeating similar questions.`;
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }],
-    }),
+  // Built-in fallback questions per topic
+  const fallback = FALLBACK_QUESTIONS[topic.id] || FALLBACK_QUESTIONS[1];
+  const shuffled = seededShuffle(fallback);
+  return shuffled.slice(0, Math.min(count, shuffled.length)).map(q => {
+    const opts = [...q.options];
+    const correctText = opts[q.answer];
+    const shuffledOpts = seededShuffle(opts);
+    return { q: q.q, options: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
   });
-  const data = await response.json();
-  const text = data.content.map(i => i.text || "").join("");
-  const clean = text.replace(/```json|```/g, "").trim();
-  const parsed = JSON.parse(clean).slice(0, count);
-  return seededShuffle(parsed); // shuffle AI questions too
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
