@@ -15,7 +15,7 @@ const T = {
     score: "Puntuación", correct: "Correctas", incorrect: "Incorrectas",
     reviewCorrect: "Preguntas que respondiste bien:", reviewWrong: "Preguntas que debes repasar:",
     tryAgain: "Intentar de nuevo", backHome: "Volver al inicio", lang: "EN",
-    generating: "Generando evaluación con IA...", yourAnswer: "Tu respuesta", correctAnswer: "Respuesta correcta",
+    generating: "Preparando evaluación...", yourAnswer: "Tu respuesta", correctAnswer: "Respuesta correcta",
     free: "GRATIS", attemptsLeft: "intentos restantes",
     unlockTitle: "Acceso al Tema", unlockPrice: "$50 pesos · 3 intentos",
     unlockDesc: "Paga $50 pesos y obtén 3 intentos. Recibirás una clave de acceso por WhatsApp.",
@@ -46,7 +46,7 @@ const T = {
     score: "Score", correct: "Correct", incorrect: "Incorrect",
     reviewCorrect: "Questions you answered correctly:", reviewWrong: "Questions you need to review:",
     tryAgain: "Try Again", backHome: "Back to Home", lang: "ES",
-    generating: "Generating AI-powered evaluation...", yourAnswer: "Your answer", correctAnswer: "Correct answer",
+    generating: "Translating questions to English with AI... 🌊", yourAnswer: "Your answer", correctAnswer: "Correct answer",
     free: "FREE", attemptsLeft: "attempts left",
     unlockTitle: "Topic Access", unlockPrice: "$50 MXN · 3 attempts",
     unlockDesc: "Pay $50 MXN and get 3 attempts. You will receive an access key via WhatsApp.",
@@ -938,27 +938,87 @@ function seededShuffle(arr) {
 // ══════════════════════════════════════════════════════════════════════════════
 // AI QUESTION GENERATOR
 // ══════════════════════════════════════════════════════════════════════════════
-async function generateQuestions(topic, lang, count = 30) {
-  // Use custom questions if available for this topic
-  if (CUSTOM_QUESTIONS[topic.id] && CUSTOM_QUESTIONS[topic.id].length >= count) {
-    const shuffled = seededShuffle(CUSTOM_QUESTIONS[topic.id]);
-    return shuffled.slice(0, count).map(q => {
-      const opts = [...q.options];
-      const correctText = opts[q.answer];
-      const shuffledOpts = seededShuffle(opts);
-      return { q: q.q, options: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
+// ─────────────────────────────────────────────────────────────────────────────
+// TRANSLATE QUESTIONS TO ENGLISH VIA CLAUDE API
+// ─────────────────────────────────────────────────────────────────────────────
+async function translateQuestionsToEnglish(questions) {
+  try {
+    // Build compact JSON payload to translate
+    const payload = questions.map((q, i) => ({
+      i,
+      q: q.q,
+      o: q.options,
+    }));
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 8000,
+        system: `You are a professional maritime English translator. 
+Translate the given JSON array of maritime exam questions from Spanish to English.
+Keep all technical maritime terms accurate (IMO, STCW, SOLAS, MARPOL standards).
+Return ONLY a valid JSON array with the same structure, no extra text, no markdown.
+Each item must have: i (index), q (question in English), o (array of 4 options in English).`,
+        messages: [{
+          role: "user",
+          content: `Translate this maritime exam to English. Return ONLY valid JSON array:
+${JSON.stringify(payload)}`
+        }]
+      })
     });
+
+    const data = await response.json();
+    const raw = data.content?.[0]?.text || "[]";
+    // Clean possible markdown fences
+    const clean = raw.replace(/```json|```/g, "").trim();
+    const translated = JSON.parse(clean);
+
+    // Rebuild questions with translated content, preserving answer index
+    return questions.map((q, i) => {
+      const tr = translated.find(t => t.i === i);
+      if (!tr) return q;
+      // Find correct answer text in translated options
+      const correctText = tr.o[q.answer] || tr.o[0];
+      const shuffledOpts = seededShuffle([...tr.o]);
+      return {
+        q: tr.q,
+        options: shuffledOpts,
+        answer: shuffledOpts.indexOf(correctText)
+      };
+    });
+  } catch (err) {
+    console.error("Translation error:", err);
+    // Fallback: return original Spanish questions
+    return questions;
+  }
+}
+
+async function generateQuestions(topic, lang, count = 30) {
+  // Pick question pool
+  let pool;
+  if (CUSTOM_QUESTIONS[topic.id] && CUSTOM_QUESTIONS[topic.id].length >= count) {
+    pool = seededShuffle(CUSTOM_QUESTIONS[topic.id]).slice(0, count);
+  } else {
+    const fallback = FALLBACK_QUESTIONS[topic.id] || FALLBACK_QUESTIONS[1];
+    pool = seededShuffle(fallback).slice(0, Math.min(count, fallback.length));
   }
 
-  // Built-in fallback questions per topic
-  const fallback = FALLBACK_QUESTIONS[topic.id] || FALLBACK_QUESTIONS[1];
-  const shuffled = seededShuffle(fallback);
-  return shuffled.slice(0, Math.min(count, shuffled.length)).map(q => {
+  // Shuffle options for each question
+  const questions = pool.map(q => {
     const opts = [...q.options];
     const correctText = opts[q.answer];
     const shuffledOpts = seededShuffle(opts);
     return { q: q.q, options: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
   });
+
+  // If English selected → translate via Claude API
+  if (lang === "en") {
+    return await translateQuestionsToEnglish(questions);
+  }
+
+  return questions;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
