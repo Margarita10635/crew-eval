@@ -26,14 +26,14 @@ const T = {
     whatsapp: "WhatsApp", bankInfo: "CLABE / Número de cuenta",
     buyAgain: "Comprar nuevo acceso",
     // Coins
-    coins: "Monedas", coinsTitle: "Tu Monedero", coinsDesc: "Saca 100% en cualquier evaluación y gana 5 monedas. Con 10 monedas obtienes 1 tema gratis.",
-    coinsEarned: "¡Ganaste 5 monedas! 🪙", coinsRedeemed: "¡Tema desbloqueado con monedas! 🎉",
-    redeemBtn: "Canjear 10 monedas por 1 tema gratis", redeemTitle: "Canjear Monedas",
-    redeemDesc: "Tienes suficientes monedas. Elige qué tema desbloquear:",
+    coins: "Exámenes perfectos", coinsTitle: "Tu Progreso", coinsDesc: "Saca 100% en 5 evaluaciones y gana 1 examen gratis. ¡Sin costo adicional!",
+    coinsEarned: "¡Examen perfecto! 🏆", coinsRedeemed: "¡Examen desbloqueado! ¡Lo ganaste con 5 perfectos! 🎉",
+    redeemBtn: "Canjear examen gratis 🎁", redeemTitle: "Examen Gratis Disponible",
+    redeemDesc: "¡Ganaste un examen gratis! Elige qué tema desbloquear:",
     redeemConfirm: "Desbloquear este tema", redeemCancel: "Cancelar",
-    notEnoughCoins: "Necesitas 10 monedas (tienes",
+    notEnoughCoins: "Necesitas 5 exámenes perfectos (llevas",
     perfect: "¡PERFECTO! 100% 🏆",
-    coinInfo: "🪙 10 monedas = 1 tema gratis",
+    coinInfo: "🏆 5 exámenes perfectos = 1 tema gratis",
   },
   en: {
     appTitle: "CREW EVAL", appSubtitle: "Professional Maritime Self-Assessment",
@@ -56,14 +56,14 @@ const T = {
     demoNote: "★ Demo: AI-generated questions",
     whatsapp: "WhatsApp", bankInfo: "Bank Account / CLABE",
     buyAgain: "Buy new access",
-    coins: "Coins", coinsTitle: "Your Wallet", coinsDesc: "Score 100% on any evaluation and earn 5 coins. With 10 coins you get 1 free topic.",
-    coinsEarned: "You earned 5 coins! 🪙", coinsRedeemed: "Topic unlocked with coins! 🎉",
-    redeemBtn: "Redeem 10 coins for 1 free topic", redeemTitle: "Redeem Coins",
-    redeemDesc: "You have enough coins. Choose which topic to unlock:",
+    coins: "Perfect exams", coinsTitle: "Your Progress", coinsDesc: "Score 100% on 5 evaluations and earn 1 free exam. No extra cost!",
+    coinsEarned: "Perfect exam! 🏆", coinsRedeemed: "Exam unlocked! You earned it with 5 perfects! 🎉",
+    redeemBtn: "Redeem free exam 🎁", redeemTitle: "Free Exam Available",
+    redeemDesc: "You earned a free exam! Choose which topic to unlock:",
     redeemConfirm: "Unlock this topic", redeemCancel: "Cancel",
-    notEnoughCoins: "You need 10 coins (you have",
+    notEnoughCoins: "You need 5 perfect exams (you have",
     perfect: "PERFECT! 100% 🏆",
-    coinInfo: "🪙 10 coins = 1 free topic",
+    coinInfo: "🏆 5 perfect exams = 1 free topic",
   },
 };
 
@@ -1093,9 +1093,9 @@ export default function App() {
   };
 
   const handleRedeem = (topic) => {
-    if (coins < 10) return;
+    if ((state.freeTokens || 0) < 1) return;
     const newCoinTopics = [...coinTopics, topic.id];
-    updateState({ coins: coins - 10, coinTopics: newCoinTopics });
+    updateState({ freeTokens: (state.freeTokens || 1) - 1, coinTopics: newCoinTopics });
     setShowRedeem(false);
     startEval(topic);
   };
@@ -1126,11 +1126,17 @@ export default function App() {
     setAnswers(newAnswers);
     if (current + 1 < questions.length) { setCurrent(c => c + 1); setSelected(null); }
     else {
-      // Check for perfect score → award coins
+      // Check for perfect score: every 5 perfect exams = 1 free exam
       const allCorrect = newAnswers.every(a => a.sel === a.correct);
       if (allCorrect) {
-        const newCoins = (state.coins || 0) + 5;
-        updateState({ coins: newCoins });
+        const perfectCount = (state.coins || 0) + 1;
+        if (perfectCount >= 5) {
+          // 5 perfect exams reached! Award 1 free exam token
+          const freeTokens = (state.freeTokens || 0) + 1;
+          updateState({ coins: 0, freeTokens });
+        } else {
+          updateState({ coins: perfectCount });
+        }
         setCoinAnim(true);
         setTimeout(() => setCoinAnim(false), 3000);
       }
@@ -1318,7 +1324,7 @@ export default function App() {
             )}
             <div style={S.coinBanner}>
               <span>🪙 {t.coinInfo}</span>
-              {coins >= 10 && (
+              {(state.freeTokens || 0) >= 1 && (
                 <button style={S.redeemSmallBtn} onClick={() => setShowRedeem(true)}>{t.redeemBtn}</button>
               )}
             </div>
@@ -1397,7 +1403,7 @@ export default function App() {
         {/* RESULTS */}
         {screen === "results" && (
           <div style={S.fadeIn}>
-            {coinAnim && <div style={S.coinAnim}>🪙🪙🪙 +5 {t.coins}! 🪙🪙🪙</div>}
+            {coinAnim && <div style={S.coinAnim}>{(state.freeTokens||0)>=1 ? "🎁 ¡EXAMEN GRATIS DESBLOQUEADO! 🎁" : `🏆 Perfecto ${state.coins||0}/5 para examen gratis 🏆`}</div>}
             <div style={{ ...S.resultCard, ...(isCompetent ? S.resultOk : S.resultFail) }}>
               <div style={S.resultIcon}>{isPerfect ? "🏆" : isCompetent ? "✅" : "📚"}</div>
               <div style={S.resultStatus}>{isPerfect ? t.perfect : isCompetent ? t.competent : t.notYet}</div>
@@ -1407,7 +1413,7 @@ export default function App() {
                 <span style={S.bdOk}>✓ {correctCount} {t.correct}</span>
                 <span style={S.bdFail}>✗ {questions.length - correctCount} {t.incorrect}</span>
               </div>
-              {isPerfect && <div style={S.coinEarned}>{t.coinsEarned} · Total: {coins} 🪙</div>}
+              {isPerfect && <div style={S.coinEarned}>{(state.freeTokens||0)>=1 ? "🎁 ¡Ganaste un examen gratis!" : `🏆 ${state.coins||0}/5 exámenes perfectos`}</div>}
               {attLeft !== null && <div style={S.attInfo}>🎫 {attLeft} {t.attemptsLeft}</div>}
             </div>
 
@@ -1432,7 +1438,7 @@ export default function App() {
           <div style={S.modal} onClick={e => e.stopPropagation()}>
             <div style={S.modalIcon}>🪙</div>
             <h3 style={S.modalTitle}>{t.coinsTitle}</h3>
-            <div style={S.bigCoins}>{coins}</div>
+            <div style={S.bigCoins}>{state.coins||0}<span style={{fontSize:14,color:"#aaa"}}>/5</span></div>
             <p style={S.coinDesc}>{t.coinsDesc}</p>
             <div style={S.coinProgress}>
               <div style={S.coinProgressBar}>
@@ -1440,7 +1446,7 @@ export default function App() {
               </div>
               <div style={S.coinProgressLabel}>{coins % 10}/10 {lang === "es" ? "para próximo gratis" : "to next free"}</div>
             </div>
-            {coins >= 10 && (
+            {(state.freeTokens || 0) >= 1 && (
               <button style={S.redeemMainBtn} onClick={() => { setShowWallet(false); setShowRedeem(true); }}>
                 {t.redeemBtn}
               </button>
