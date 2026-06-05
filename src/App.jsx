@@ -927,12 +927,9 @@ function getValidKeys() {
 function seededShuffle(arr) {
   // Usamos timestamp + random para que cada tripulante en el mismo barco
   // vea un orden diferente en la misma sesión
-  const seed = Date.now() + Math.random() * 999999;
   const a = [...arr];
-  let s = seed;
   for (let i = a.length - 1; i > 0; i--) {
-    s = (s * 1664525 + 1013904223) & 0xffffffff;
-    const j = Math.abs(s) % (i + 1);
+    const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
@@ -1414,28 +1411,7 @@ export default function App() {
               {attLeft !== null && <div style={S.attInfo}>🎫 {attLeft} {t.attemptsLeft}</div>}
             </div>
 
-            {answers.filter(a => a.sel === a.correct).length > 0 && (
-              <div style={S.reviewSection}>
-                <h3 style={S.reviewTitleOk}>✅ {t.reviewCorrect}</h3>
-                {answers.filter(a => a.sel === a.correct).map((a, i) => (
-                  <div key={i} style={S.reviewItemOk}>
-                    <p style={S.reviewQ}>{questions[a.qi].q}</p>
-                    <p style={S.reviewA}>{t.correctAnswer}: <strong>{questions[a.qi].options[a.correct]}</strong></p>
-                  </div>
-                ))}
-              </div>
-            )}
-            {answers.filter(a => a.sel !== a.correct).length > 0 && (
-              <div style={S.reviewSection}>
-                <h3 style={S.reviewTitleFail}>❌ {t.reviewWrong}</h3>
-                {answers.filter(a => a.sel !== a.correct).map((a, i) => (
-                  <div key={i} style={S.reviewItemFail}>
-                    <p style={S.reviewQ}>{questions[a.qi].q}</p>
-                    <p style={{ ...S.reviewA, color: "#ef9a9a" }}>{t.yourAnswer}: {questions[a.qi].options[a.sel]}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+
 
             <div style={S.resultActions}>
               {(selectedTopic?.free || coinTopics.includes(selectedTopic?.id) || attLeft > 0) && (
