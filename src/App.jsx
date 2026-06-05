@@ -948,6 +948,10 @@ async function generateQuestions(topic, lang, count = 30) {
     return { q: q.q, options: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
   });
 }
+const SK = "creweval_v3";
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(SK) || "{}"); } catch { return {}; }
+}
 function saveState(s) {
   try { localStorage.setItem(SK, JSON.stringify(s)); } catch {}
 }
