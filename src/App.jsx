@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FALLBACK_QUESTIONS, FALLBACK_QUESTIONS_EN } from "./questions.js";
 
 // ══════════════════════════════════════════════════════════════════════════════
 // TRANSLATIONS
@@ -143,7 +144,6 @@ const CUSTOM_QUESTIONS = {
 // ══════════════════════════════════════════════════════════════════════════════
 // PREGUNTAS OFICIALES — OMI, STCW, SOLAS, MARPOL, LNCM Y REGLAMENTO
 // ══════════════════════════════════════════════════════════════════════════════
-import { FALLBACK_QUESTIONS, FALLBACK_QUESTIONS_EN } from './questions.js';
 
 
 // PAYMENT CONFIG
