@@ -889,7 +889,11 @@ async function sendResultsToSheets(profile, topic, lang, correctCount, totalQues
     await fetch(SHEETS_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
       body: JSON.stringify(data),
     });
   } catch (err) {
@@ -952,7 +956,11 @@ async function translateQuestionsToEnglish(questions) {
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 8000,
@@ -995,6 +1003,20 @@ ${JSON.stringify(payload)}`
   }
 }
 
+// Helper: translate a single batch of max 10 questions to avoid token limits
+async function translateInBatches(questions) {
+  const BATCH = 10;
+  let result = [];
+  for (let i = 0; i < questions.length; i += BATCH) {
+    const batch = questions.slice(i, i + BATCH);
+    // Re-index for this batch
+    const reindexed = batch.map((q, j) => ({ ...q, _origIdx: i + j }));
+    const translated = await translateQuestionsToEnglish(reindexed);
+    result = result.concat(translated);
+  }
+  return result;
+}
+
 async function generateQuestions(topic, lang, count = 30) {
   // Pick question pool
   let pool;
@@ -1013,9 +1035,12 @@ async function generateQuestions(topic, lang, count = 30) {
     return { q: q.q, options: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
   });
 
-  // If English selected → translate via Claude API
+  // If English selected → translate via Claude API in batches
   if (lang === "en") {
-    return await translateQuestionsToEnglish(questions);
+    console.log("🌊 Translating", questions.length, "questions to English...");
+    const translated = await translateInBatches(questions);
+    console.log("✅ Translation complete");
+    return translated;
   }
 
   return questions;
