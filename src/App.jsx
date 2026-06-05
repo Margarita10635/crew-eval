@@ -143,14 +143,11 @@ const CUSTOM_QUESTIONS = {
 // ══════════════════════════════════════════════════════════════════════════════
 // PREGUNTAS OFICIALES — OMI, STCW, SOLAS, MARPOL, LNCM Y REGLAMENTO
 // ══════════════════════════════════════════════════════════════════════════════
-const Q = (q, options, answer) => ({ q, options, answer });
+const Q = (q, o, a) => ({ q, options: o, answer: a });
 // ══════════════════════════════════════════════════════════════════════════════
-// PREGUNTAS OFICIALES — 22 TEMAS · 660 PREGUNTAS
-// Basadas en: OMI · STCW · SOLAS · MARPOL · LSA · FSS · PBIP · MLC 2006
-// Ley de Navegación y Comercio Marítimo (LNCM) y su Reglamento
-// Aprobadas y revisadas — Junio 2026
+// 22 TEMAS · 660 PREGUNTAS — Aprobadas y revisadas Junio 2026
+// OMI · STCW · SOLAS · MARPOL · LSA · FSS · PBIP · MLC 2006 · LNCM
 // ══════════════════════════════════════════════════════════════════════════════
-const Q=(q,o,a)=>({q,o,a});
 const FALLBACK_QUESTIONS={
   1:[
     Q("Según SOLAS II-2, ¿cada cuánto se realizan los simulacros de incendio?",["Mensualmente","Semanalmente","Anualmente","Cada viaje"],0),
@@ -472,7 +469,6 @@ const FALLBACK_QUESTIONS={
     Q("¿Cómo se trata la insolación o golpe de calor según la guía médica OMI?",["Refrescar al paciente, hidratarlo si está consciente y trasladarlo a lugar fresco con urgencia","Solo darle agua y dejarlo descansar","Solo aplicar hielo en frente y cuello","Solo llevarlo a la sombra sin más tratamiento"],0),
     Q("¿Qué es la regla de los 9 para evaluar la extensión de una quemadura?",["Método para calcular el porcentaje de superficie corporal quemada — cada zona representa el 9%","Solo se usa para quemaduras de tercer grado","Solo la aplica el médico de a bordo","No tiene aplicación en el tratamiento a bordo"],0),
   ],
-};
   11:[
     Q("¿Qué es el Código IMDG y desde cuándo es obligatorio?",["Código Internacional de Mercancías Peligrosas por Mar — obligatorio desde 2004 para todos los buques","Solo recomendatorio para buques pequeños","Solo para tanqueros y portacontenedores","Obligatorio desde 1974 cuando fue creado"],0),
     Q("¿Cuántas clases de peligro tiene el Código IMDG?",["9 clases — desde explosivos hasta sustancias diversas peligrosas","7 clases","6 clases","12 clases"],0),
@@ -858,7 +854,6 @@ const FALLBACK_QUESTIONS={
     Q("¿Qué es el vencimiento de un cable de acero y quién lo determina?",["Fecha límite de uso determinada por el fabricante, normas de clasificación y tipo de servicio — obligatorio respetarlo","Solo una recomendación del fabricante sin obligación","Solo aplica a cables de botes salvavidas","Lo decide libremente el capitán del buque"],0),
   ],
 };
-}
 // PAYMENT CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
 const PAYMENT_CONFIG = {
