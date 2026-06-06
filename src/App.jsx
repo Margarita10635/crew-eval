@@ -17,7 +17,7 @@ const T = {
     generating: "Preparando evaluación...", yourAnswer: "Tu respuesta", correctAnswer: "Respuesta correcta",
     free: "GRATIS", attemptsLeft: "intentos restantes",
     unlockTitle: "Acceso al Tema", unlockPrice: "$50 pesos · 3 intentos",
-    unlockDesc: "Paga $50 pesos y obtén 3 intentos. Recibirás una clave de acceso por WhatsApp.",
+    unlockDesc: "Paga $50 pesos y obtén 3 intentos. Recibirás una clave de acceso por WhatsApp o correo.",
     enterKey: "Ingresa tu clave de acceso", keyPlaceholder: "Ej: CREW-5-XXXX",
     activateBtn: "Activar Clave", cancelBtn: "Cancelar",
     keyError: "Clave inválida o ya utilizada.", keySuccess: "¡Clave activada! Tienes 3 intentos.",
@@ -48,7 +48,7 @@ const T = {
     generating: "Translating questions to English with AI... 🌊", yourAnswer: "Your answer", correctAnswer: "Correct answer",
     free: "FREE", attemptsLeft: "attempts left",
     unlockTitle: "Topic Access", unlockPrice: "$50 MXN · 3 attempts",
-    unlockDesc: "Pay $50 MXN and get 3 attempts. You will receive an access key via WhatsApp.",
+    unlockDesc: "Pay $50 MXN and get 3 attempts. You will receive an access key via WhatsApp or email.",
     enterKey: "Enter your access key", keyPlaceholder: "E.g: CREW-5-XXXX",
     activateBtn: "Activate Key", cancelBtn: "Cancel",
     keyError: "Invalid or already used key.", keySuccess: "Key activated! You have 3 attempts.",
@@ -69,13 +69,13 @@ const T = {
 // TOPICS  (solo id:1 es gratis)
 const TOPICS = [
   { id: 1,  icon: "🔥", nameEs: "Contraincendio",            nameEn: "Fire Fighting",                 free: true  },
-  { id: 2,  icon: "🛟", nameEs: "Salvamento",                nameEn: "Lifesaving",                    free: false },
+  { id: 2,  icon: "🛟", nameEs: "Salvamento",                nameEn: "Lifesaving",                    free: true  },
   { id: 3,  icon: "🔒", nameEs: "PBIP / ISPS",               nameEn: "ISPS / Ship Security",          free: false },
   { id: 4,  icon: "⚖️", nameEs: "Responsabilidades Sociales",nameEn: "Social Responsibilities",       free: false },
   { id: 5,  icon: "🌊", nameEs: "Inglés Marítimo",           nameEn: "Maritime English",              free: false },
   { id: 6,  icon: "🧳", nameEs: "Servicios Turísticos",      nameEn: "Tourism Services",              free: false },
   { id: 7,  icon: "🚢", nameEs: "Buques de Pasaje",          nameEn: "Passenger Vessels",             free: false },
-  { id: 8,  icon: "🪢", nameEs: "Cabos y Nudos",             nameEn: "Lines & Knots",                 free: false },
+  { id: 8,  icon: "🪢", nameEs: "Cabos y Nudos",             nameEn: "Lines & Knots",                 free: true  },
   { id: 9,  icon: "🧭", nameEs: "Navegación",                nameEn: "Navigation",                    free: false },
   { id: 10, icon: "🩺", nameEs: "Primeros Auxilios",         nameEn: "First Aid",                     free: false },
   { id: 11, icon: "☢️", nameEs: "Mercancías Peligrosas",     nameEn: "Dangerous Goods (IMDG)",        free: false },
@@ -899,6 +899,31 @@ function loadAdminKeys() {
 function saveAdminKeys(keys) {
   try { localStorage.setItem(ADMIN_KEYS_STORAGE, JSON.stringify(keys)); } catch {}
 }
+
+async function notifyKeyActivation(profile, topic, key) {
+  try {
+    // Send email via FormSubmit (free, no registration needed)
+    // First time: FormSubmit will send a confirmation email to activate
+    const body = new FormData();
+    body.append("_subject", "🚢 CREW EVAL — Clave activada: " + key);
+    body.append("_template", "table");
+    body.append("_captcha", "false");
+    body.append("Clave", key);
+    body.append("Tema", topic.nameEs + " (Tema " + topic.id + ")");
+    body.append("Nombre", profile?.nombre || "Sin nombre");
+    body.append("Teléfono", profile?.tel || "Sin teléfono");
+    body.append("Correo", profile?.correo || "Sin correo");
+    body.append("Buque", profile?.buque || "Sin buque");
+    body.append("Rango", profile?.rango || "Sin rango");
+    body.append("Fecha", new Date().toLocaleString("es-MX"));
+    await fetch("https://formsubmit.co/velaperezmargarita@gmail.com", {
+      method: "POST",
+      body,
+    });
+  } catch (err) {
+    console.log("Email notification failed (non-critical):", err);
+  }
+}
 function generateCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
@@ -950,7 +975,15 @@ async function generateQuestions(topic, lang, count = 30) {
 }
 const SK = "creweval_v3";
 function loadState() {
-  try { return JSON.parse(localStorage.getItem(SK) || "{}"); } catch { return {}; }
+  try {
+    const s = JSON.parse(localStorage.getItem(SK) || "{}");
+    // v3.1: ensure free topics (1,2,8) are never blocked by old access data
+    const FREE_IDS = [1, 2, 8];
+    if (s.access) {
+      FREE_IDS.forEach(id => { if (s.access[id]) delete s.access[id]; });
+    }
+    return s;
+  } catch { return {}; }
 }
 function saveState(s) {
   try { localStorage.setItem(SK, JSON.stringify(s)); } catch {}
@@ -1054,8 +1087,12 @@ export default function App() {
     const validKeys = getValidKeys();
     const keyData = validKeys[key];
     if (!keyData || keyData.topicId !== showModal.id) { setKeyError(t.keyError); return; }
+    // Check if key is used in user's local access history
     const allUsed = Object.values(access).flatMap(a => a.usedKeys || []);
     if (allUsed.includes(key)) { setKeyError(t.keyError); return; }
+    // Check if key is marked used in admin keys (used by someone else on different device)
+    const currentAdminKeys = loadAdminKeys();
+    if (currentAdminKeys[key] && currentAdminKeys[key].used === true) { setKeyError(t.keyError); return; }
     // Mark key as used in admin keys
     const adminKeys = loadAdminKeys();
     if (adminKeys[key]) {
@@ -1071,6 +1108,8 @@ export default function App() {
     };
     updateState({ access: newAccess });
     setKeySuccess(t.keySuccess);
+    // Send email notification to admin
+    notifyKeyActivation(profile, showModal, key);
     setTimeout(() => { const tp = showModal; setShowModal(null); startEval(tp); }, 1400);
   };
 
@@ -1158,7 +1197,6 @@ export default function App() {
                 👤 <span style={S.profileName}>{profile.nombre.split(" ")[0]}</span>
               </button>
             )}
-            <button style={S.adminBtn} onClick={() => { setShowAdmin(true); setAdminAuth(false); setAdminPass(""); setNewlyGeneratedKey(""); }}>⚙️</button>
             <button style={S.coinBtn} onClick={() => setShowWallet(true)}>
               🪙 <span style={S.coinCount}>{coins}</span>
             </button>
@@ -1412,6 +1450,15 @@ export default function App() {
         )}
       </main>
 
+      <footer style={{textAlign:"center",padding:"18px 0 10px",color:"rgba(255,255,255,0.12)",fontSize:11}}>
+        <span
+          style={{cursor:"default",userSelect:"none"}}
+          onDoubleClick={() => { setShowAdmin(true); setAdminAuth(false); setAdminPass(""); setNewlyGeneratedKey(""); }}
+        >
+          © 2026 CREW EVAL
+        </span>
+      </footer>
+
       {/* WALLET MODAL */}
       {showWallet && (
         <div style={S.overlay} onClick={() => setShowWallet(false)}>
@@ -1489,8 +1536,22 @@ export default function App() {
                   </div>
                 </div>
                 <div style={S.payStep}><span style={S.payStepNum}>2</span>
-                  <div style={S.payStepLabel}>{lang === "es" ? "Envía tu comprobante y el tema que deseas por" : "Send your receipt and desired topic via"}
-                    <a href={`https://wa.me/${PAYMENT_CONFIG.whatsapp}`} target="_blank" rel="noreferrer" style={S.waLink}>&nbsp;📱 {t.whatsapp}</a>
+                  <div style={S.payStepLabel}>
+                    {lang === "es" ? "Envía tu comprobante y el tema que deseas por:" : "Send your receipt and desired topic via:"}
+                    <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+                      <a href={`https://wa.me/${PAYMENT_CONFIG.whatsapp}?text=${encodeURIComponent("Hola, adjunto comprobante de pago por el tema: " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : ""))}`}
+                        target="_blank" rel="noreferrer"
+                        style={{...S.waLink, background:"rgba(37,211,102,0.15)", border:"1px solid rgba(37,211,102,0.3)", borderRadius:8, padding:"6px 12px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:4}}>
+                        📱 WhatsApp
+                      </a>
+                      <a href={`mailto:velaperezmargarita@gmail.com?subject=${encodeURIComponent("Pago CREW EVAL - " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : ""))}&body=${encodeURIComponent("Hola, adjunto mi comprobante de pago para el tema: " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : "") + "
+
+Mi nombre: 
+Mi teléfono: ")}`}
+                        style={{...S.waLink, background:"rgba(66,133,244,0.15)", border:"1px solid rgba(66,133,244,0.3)", borderRadius:8, padding:"6px 12px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:4, color:"#90caf9"}}>
+                        ✉️ {lang === "es" ? "Correo" : "Email"}
+                      </a>
+                    </div>
                   </div>
                 </div>
                 <div style={S.payStep}><span style={S.payStepNum}>3</span>
