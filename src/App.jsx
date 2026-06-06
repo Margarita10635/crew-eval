@@ -1182,6 +1182,12 @@ export default function App() {
       <div style={S.bgOverlay} /><div style={S.bgGrid} />
 
       {/* HEADER */}
+      <style>{`
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes coinPop{0%{opacity:0;transform:translateX(-50%) scale(0.5)}15%{opacity:1;transform:translateX(-50%) scale(1.1)}85%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) scale(0.9)}}
+        button:hover{filter:brightness(1.12)}
+      `}</style>
       <header style={S.header}>
         <div style={S.headerInner}>
           <div style={S.logo}>
@@ -1544,10 +1550,7 @@ export default function App() {
                         style={{...S.waLink, background:"rgba(37,211,102,0.15)", border:"1px solid rgba(37,211,102,0.3)", borderRadius:8, padding:"6px 12px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:4}}>
                         📱 WhatsApp
                       </a>
-                      <a href={`mailto:velaperezmargarita@gmail.com?subject=${encodeURIComponent("Pago CREW EVAL - " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : ""))}&body=${encodeURIComponent("Hola, adjunto mi comprobante de pago para el tema: " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : "") + "
-
-Mi nombre: 
-Mi teléfono: ")}`}
+                      <a href={`mailto:velaperezmargarita@gmail.com?subject=${encodeURIComponent("Pago CREW EVAL - " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : ""))}&body=${encodeURIComponent("Hola, adjunto comprobante de pago.%0ATema: " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : "") + "%0AMi nombre: %0AMi telefono: ")}`}
                         style={{...S.waLink, background:"rgba(66,133,244,0.15)", border:"1px solid rgba(66,133,244,0.3)", borderRadius:8, padding:"6px 12px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:4, color:"#90caf9"}}>
                         ✉️ {lang === "es" ? "Correo" : "Email"}
                       </a>
@@ -1818,11 +1821,3 @@ const S = {
   cancelBtn: { width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#546e7a", fontSize: 12, cursor: "pointer", marginTop: 6 },
 };
 
-const el = document.createElement("style");
-el.textContent = `
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes coinPop{0%{opacity:0;transform:translateX(-50%) scale(0.5)}15%{opacity:1;transform:translateX(-50%) scale(1.1)}85%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) scale(0.9)}}
-  button:hover{filter:brightness(1.12)}
-`;
-document.head.appendChild(el);
