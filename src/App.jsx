@@ -144,7 +144,7 @@ const FALLBACK_QUESTIONS={
     Q("Según SOLAS II-2, ¿cada cuánto se realizan los simulacros de incendio?",["Mensualmente","Semanalmente","Anualmente","Cada viaje"],0),
     Q("El triángulo del fuego según la OMI está compuesto por:",["Calor, combustible y oxígeno","Llama, humo y calor","Ignición, propagación y combustible","Temperatura, presión y oxígeno"],0),
     Q("La clase de incendio A corresponde a:",["Materiales sólidos combustibles","Líquidos inflamables","Gases inflamables","Metales combustibles"],0),
-    Q("Los fuegos de clase B son:",["Líquidos y grasas inflamables","Materiales sólidos","Gases inflamables","Metales"],0),
+    Q("Los fuegos de clase B según la OMI (Curso Modelo 1.20) son:",["Líquidos inflamables y gases inflamables — gasolina, diésel, propano, butano","Materiales sólidos combustibles","Equipos eléctricos energizados","Metales combustibles"],0),
     Q("¿Qué agente extintor NO debe usarse en fuegos eléctricos?",["Agua","CO₂","Polvo ABC","Agente limpio"],0),
     Q("El plan de lucha contra incendios según SOLAS debe estar:",["Permanentemente expuesto en lugares accesibles","Solo en el puente","Solo en sala de máquinas","En la caja fuerte del capitán"],0),
     Q("¿Cuántas salidas de emergencia mínimo debe tener cada espacio habitable?",["Dos como mínimo","Una","Tres","Cuatro"],0),
@@ -161,7 +161,7 @@ const FALLBACK_QUESTIONS={
     Q("Según la LNCM, ¿quién es responsable de la seguridad a bordo?",["El capitán como máxima autoridad del buque","Solo el armador","Solo el oficial de seguridad","El Estado de bandera"],0),
     Q("El detector iónico de humo detecta:",["Partículas de combustión en el aire","Solo llamas visibles","Solo calor intenso","Solo gases tóxicos"],0),
     Q("¿Qué es el punto de inflamación de un líquido?",["Temperatura mínima para emitir vapores que se inflaman temporalmente","Temperatura de ebullición","Temperatura de explosión","Temperatura de combustión continua"],0),
-    Q("El extintor de agente húmedo clase K es para:",["Grasas y aceites de cocina","Fuegos eléctricos","Fuegos de sólidos","Fuegos de gases"],0),
+    Q("La clase F/K de incendio según la OMI corresponde a:",["Grasas y aceites de cocina — requiere extintor de agente húmedo clase K","Fuegos eléctricos energizados","Fuegos de sólidos combustibles","Gases inflamables a presión"],0),
     Q("Las zonas verticales principales en SOLAS II-2 sirven para:",["Limitar la propagación del incendio dividiendo el buque en secciones","Solo separar zonas de carga","Solo zonas de pasajeros","Solo proteger sala de máquinas"],0),
     Q("El STCW A-VI/3 exige formación avanzada en incendios para:",["Personal designado como jefe de brigada o bombero","Toda la tripulación","Solo el capitán","Solo el primer oficial"],0),
     Q("Cada espacio del buque debe tener como mínimo:",["Al menos un extintor portátil certificado","Uno por buque en total","Uno por cubierta","Solo en sala de máquinas"],0),
@@ -169,7 +169,7 @@ const FALLBACK_QUESTIONS={
     Q("El sistema fijo de extinción más común en sala de máquinas es:",["CO₂ o equivalente aprobado por la OMI","Solo espuma","Solo agua nebulizada","Solo polvo"],0),
     Q("¿Qué significa la clase de incendio D?",["Metales combustibles como magnesio, titanio y litio","Líquidos inflamables","Gases inflamables","Materiales sólidos combustibles"],0),
     Q("El Reglamento de la LNCM establece que los simulacros de incendio:",["Son obligatorios mensualmente y se registran en el diario del buque","Son opcionales","Son solo anuales","Los decide el capitán"],0),
-    Q("¿Qué es la clase de incendio C?",["Gases inflamables como GLP, GN y acetileno","Líquidos inflamables","Metales combustibles","Materiales sólidos"],0),
+    Q("¿Qué es la clase de incendio C según la OMI (Curso Modelo 1.20)?",["Fuegos en equipos eléctricos o instalaciones energizadas — no usar agente extintor conductor","Gases inflamables como GLP y acetileno","Metales combustibles como magnesio","Sólidos combustibles como madera y papel"],0),
     Q("La formación de brigada de incendios debe incluir al menos:",["Un equipo completo de bomberos por guardia","Solo al capitán","Solo a los oficiales","A toda la tripulación sin equipo especial"],0),
   ],
   2:[
@@ -1050,6 +1050,29 @@ export default function App() {
   const coins = state.coins || 0;
   const access = state.access || {};
   const coinTopics = state.coinTopics || [];
+
+  // Handle ?tema=N URL parameter — auto-open topic modal on load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const temaId = parseInt(params.get("tema"));
+    if (temaId && temaId >= 1 && temaId <= 22) {
+      const topic = TOPICS.find(t => t.id === temaId);
+      if (topic) {
+        // Small delay to let app render first
+        setTimeout(() => {
+          if (topic.free) {
+            startEval(topic);
+          } else {
+            setModalTab("key");
+            setKeyInput("");
+            setKeyError("");
+            setKeySuccess("");
+            setShowModal(topic);
+          }
+        }, 600);
+      }
+    }
+  }, []);
 
   const handleRegister = () => {
     const errors = {};
