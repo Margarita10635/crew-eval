@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
+import { FALLBACK_QUESTIONS_EN } from "./questionsEN.js";
 
-// ══════════════════════════════════════════════════════════════════════════════
 // TRANSLATIONS
-// ══════════════════════════════════════════════════════════════════════════════
 const T = {
   es: {
     appTitle: "CREW EVAL", appSubtitle: "Autoevaluación Marítima Tripulantes",
@@ -15,10 +14,10 @@ const T = {
     score: "Puntuación", correct: "Correctas", incorrect: "Incorrectas",
     reviewCorrect: "Preguntas que respondiste bien:", reviewWrong: "Preguntas que debes repasar:",
     tryAgain: "Intentar de nuevo", backHome: "Volver al inicio", lang: "EN",
-    generating: "Generando evaluación con IA...", yourAnswer: "Tu respuesta", correctAnswer: "Respuesta correcta",
+    generating: "Preparando evaluación...", yourAnswer: "Tu respuesta", correctAnswer: "Respuesta correcta",
     free: "GRATIS", attemptsLeft: "intentos restantes",
     unlockTitle: "Acceso al Tema", unlockPrice: "$50 pesos · 3 intentos",
-    unlockDesc: "Paga $50 pesos y obtén 3 intentos. Recibirás una clave de acceso por WhatsApp.",
+    unlockDesc: "Paga $50 pesos y obtén 3 intentos. Recibirás una clave de acceso por WhatsApp o correo.",
     enterKey: "Ingresa tu clave de acceso", keyPlaceholder: "Ej: CREW-5-XXXX",
     activateBtn: "Activar Clave", cancelBtn: "Cancelar",
     keyError: "Clave inválida o ya utilizada.", keySuccess: "¡Clave activada! Tienes 3 intentos.",
@@ -26,14 +25,14 @@ const T = {
     whatsapp: "WhatsApp", bankInfo: "CLABE / Número de cuenta",
     buyAgain: "Comprar nuevo acceso",
     // Coins
-    coins: "Monedas", coinsTitle: "Tu Monedero", coinsDesc: "Saca 100% en cualquier evaluación y gana 5 monedas. Con 10 monedas obtienes 1 tema gratis.",
-    coinsEarned: "¡Ganaste 5 monedas! 🪙", coinsRedeemed: "¡Tema desbloqueado con monedas! 🎉",
-    redeemBtn: "Canjear 10 monedas por 1 tema gratis", redeemTitle: "Canjear Monedas",
-    redeemDesc: "Tienes suficientes monedas. Elige qué tema desbloquear:",
+    coins: "Exámenes perfectos", coinsTitle: "Tu Progreso", coinsDesc: "Saca 100% en 5 evaluaciones y gana 1 examen gratis. ¡Sin costo adicional!",
+    coinsEarned: "¡Examen perfecto! 🏆", coinsRedeemed: "¡Examen desbloqueado! ¡Lo ganaste con 5 perfectos! 🎉",
+    redeemBtn: "Canjear examen gratis 🎁", redeemTitle: "Examen Gratis Disponible",
+    redeemDesc: "¡Ganaste un examen gratis! Elige qué tema desbloquear:",
     redeemConfirm: "Desbloquear este tema", redeemCancel: "Cancelar",
-    notEnoughCoins: "Necesitas 10 monedas (tienes",
+    notEnoughCoins: "Necesitas 5 exámenes perfectos (llevas",
     perfect: "¡PERFECTO! 100% 🏆",
-    coinInfo: "🪙 10 monedas = 1 tema gratis",
+    coinInfo: "🏆 5 exámenes perfectos = 1 tema gratis",
   },
   en: {
     appTitle: "CREW EVAL", appSubtitle: "Professional Maritime Self-Assessment",
@@ -46,39 +45,37 @@ const T = {
     score: "Score", correct: "Correct", incorrect: "Incorrect",
     reviewCorrect: "Questions you answered correctly:", reviewWrong: "Questions you need to review:",
     tryAgain: "Try Again", backHome: "Back to Home", lang: "ES",
-    generating: "Generating AI-powered evaluation...", yourAnswer: "Your answer", correctAnswer: "Correct answer",
+    generating: "Translating questions to English with AI... 🌊", yourAnswer: "Your answer", correctAnswer: "Correct answer",
     free: "FREE", attemptsLeft: "attempts left",
     unlockTitle: "Topic Access", unlockPrice: "$50 MXN · 3 attempts",
-    unlockDesc: "Pay $50 MXN and get 3 attempts. You will receive an access key via WhatsApp.",
+    unlockDesc: "Pay $50 MXN and get 3 attempts. You will receive an access key via WhatsApp or email.",
     enterKey: "Enter your access key", keyPlaceholder: "E.g: CREW-5-XXXX",
     activateBtn: "Activate Key", cancelBtn: "Cancel",
     keyError: "Invalid or already used key.", keySuccess: "Key activated! You have 3 attempts.",
     demoNote: "★ Demo: AI-generated questions",
     whatsapp: "WhatsApp", bankInfo: "Bank Account / CLABE",
     buyAgain: "Buy new access",
-    coins: "Coins", coinsTitle: "Your Wallet", coinsDesc: "Score 100% on any evaluation and earn 5 coins. With 10 coins you get 1 free topic.",
-    coinsEarned: "You earned 5 coins! 🪙", coinsRedeemed: "Topic unlocked with coins! 🎉",
-    redeemBtn: "Redeem 10 coins for 1 free topic", redeemTitle: "Redeem Coins",
-    redeemDesc: "You have enough coins. Choose which topic to unlock:",
+    coins: "Perfect exams", coinsTitle: "Your Progress", coinsDesc: "Score 100% on 5 evaluations and earn 1 free exam. No extra cost!",
+    coinsEarned: "Perfect exam! 🏆", coinsRedeemed: "Exam unlocked! You earned it with 5 perfects! 🎉",
+    redeemBtn: "Redeem free exam 🎁", redeemTitle: "Free Exam Available",
+    redeemDesc: "You earned a free exam! Choose which topic to unlock:",
     redeemConfirm: "Unlock this topic", redeemCancel: "Cancel",
-    notEnoughCoins: "You need 10 coins (you have",
+    notEnoughCoins: "You need 5 perfect exams (you have",
     perfect: "PERFECT! 100% 🏆",
-    coinInfo: "🪙 10 coins = 1 free topic",
+    coinInfo: "🏆 5 perfect exams = 1 free topic",
   },
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
 // TOPICS  (solo id:1 es gratis)
-// ══════════════════════════════════════════════════════════════════════════════
 const TOPICS = [
   { id: 1,  icon: "🔥", nameEs: "Contraincendio",            nameEn: "Fire Fighting",                 free: true  },
-  { id: 2,  icon: "🛟", nameEs: "Salvamento",                nameEn: "Lifesaving",                    free: false },
+  { id: 2,  icon: "🛟", nameEs: "Salvamento",                nameEn: "Lifesaving",                    free: true  },
   { id: 3,  icon: "🔒", nameEs: "PBIP / ISPS",               nameEn: "ISPS / Ship Security",          free: false },
   { id: 4,  icon: "⚖️", nameEs: "Responsabilidades Sociales",nameEn: "Social Responsibilities",       free: false },
   { id: 5,  icon: "🌊", nameEs: "Inglés Marítimo",           nameEn: "Maritime English",              free: false },
   { id: 6,  icon: "🧳", nameEs: "Servicios Turísticos",      nameEn: "Tourism Services",              free: false },
   { id: 7,  icon: "🚢", nameEs: "Buques de Pasaje",          nameEn: "Passenger Vessels",             free: false },
-  { id: 8,  icon: "🪢", nameEs: "Cabos y Nudos",             nameEn: "Lines & Knots",                 free: false },
+  { id: 8,  icon: "🪢", nameEs: "Cabos y Nudos",             nameEn: "Lines & Knots",                 free: true  },
   { id: 9,  icon: "🧭", nameEs: "Navegación",                nameEn: "Navigation",                    free: false },
   { id: 10, icon: "🩺", nameEs: "Primeros Auxilios",         nameEn: "First Aid",                     free: false },
   { id: 11, icon: "☢️", nameEs: "Mercancías Peligrosas",     nameEn: "Dangerous Goods (IMDG)",        free: false },
@@ -95,11 +92,9 @@ const TOPICS = [
   { id: 22, icon: "🔌", nameEs: "Cables y Alambre",         nameEn: "Wire & Cable Systems",          free: false },
 ];
 
-// ══════════════════════════════════════════════════════════════════════════════
 // CUSTOM QUESTIONS BANK  ← aquí puedes agregar tus propias preguntas por tema
 // Si un tema tiene preguntas aquí, se usan ESTAS (mezcladas) en lugar de IA.
 // Formato: { topicId: [ {q, options:[4], answer:0-3}, ... ] }
-// ══════════════════════════════════════════════════════════════════════════════
 const CUSTOM_QUESTIONS = {
   // Ejemplo para Contraincendio (id:1) — reemplaza con tus preguntas reales:
   1: [
@@ -114,13 +109,13 @@ const CUSTOM_QUESTIONS = {
     { q: "¿Qué tipo de extintor NO debe usarse en fuegos eléctricos?", options: ["CO₂", "Polvo ABC", "Agua", "Agente limpio"], answer: 2 },
     { q: "El sistema de rociadores automáticos (sprinklers) se activa por:", options: ["Orden del capitán", "Fusible térmico que se derrite con el calor", "Señal del detector de humo central", "Presión del sistema hidráulico"], answer: 1 },
     { q: "¿Qué significa EEBI?", options: ["Equipo Especial de Búsqueda e Investigación", "Equipo de Emergencia para Brigada de Incendios", "Equipo de Escape con Respiración de Emergencia", "Equipo Estándar de Bombero Internacional"], answer: 2 },
-    { q: "El fuego de clase 'C' corresponde a:", options: ["Metales combustibles", "Grasas y aceites de cocina", "Gases inflamables", "Materiales sólidos"], answer: 2 },
+    { q: "El fuego de clase 'C' según la OMI corresponde a:", options: ["Equipos eléctricos o instalaciones energizadas", "Gases inflamables", "Metales combustibles", "Materiales sólidos"], answer: 0 },
     { q: "¿Cuál es la función principal de la manguera contra incendios a bordo?", options: ["Solo para limpieza de cubiertas", "Conducir agua a presión hacia el foco del incendio", "Crear barreras de espuma", "Enfriar los depósitos de combustible únicamente"], answer: 1 },
     { q: "En caso de incendio en la cocina por aceite, se debe:", options: ["Usar agua a chorro directo", "Cubrir con tapa y usar extintor de CO₂ o polvo", "Abrir ventanas para ventilar", "Usar extintor de agua pulverizada"], answer: 1 },
     { q: "¿Qué normativa internacional regula la seguridad contra incendios en buques?", options: ["MARPOL 73/78", "SOLAS Capítulo II-2", "STCW 2010", "ISM Code"], answer: 1 },
     { q: "El detector de humo de tipo ionización detecta:", options: ["Calor intenso solamente", "Partículas de combustión en el aire", "Llamas visibles", "Gases tóxicos específicos"], answer: 1 },
     { q: "¿Qué acción se toma primero al descubrir un incendio a bordo?", options: ["Intentar apagarlo inmediatamente", "Dar la alarma y notificar al puente", "Evacuear el compartimento", "Cerrar todas las puertas estancas"], answer: 1 },
-    { q: "La espuma AFFF se utiliza principalmente para fuegos de:", options: ["Clase A (sólidos)", "Clase B (líquidos inflamables)", "Clase C (gases)", "Clase D (metales)"], answer: 1 },
+    { q: "La espuma AFFF se utiliza principalmente para fuegos de:", options: ["Clase A (sólidos)", "Clase B (líquidos inflamables)", "Clase C (eléctricos)", "Clase D (metales)"], answer: 1 },
     { q: "¿Cuántas salidas de emergencia debe tener como mínimo cada espacio habitable a bordo?", options: ["Una", "Dos", "Tres", "Depende del tamaño del buque"], answer: 1 },
     { q: "El plan de control de incendios a bordo debe estar:", options: ["Solo en el puente", "Solo en la sala de máquinas", "Expuesto en lugares visibles y accesibles", "En la caja fuerte del capitán"], answer: 2 },
     { q: "¿Qué es una línea de vida (lifeline) en el contexto de lucha contra incendios?", options: ["Un cabo guía que usan los bomberos en espacios con humo", "El sistema de comunicación de emergencia", "La manguera principal contra incendios", "El arnés de seguridad del bombero"], answer: 0 },
@@ -139,21 +134,17 @@ const CUSTOM_QUESTIONS = {
   // 9: [ {q:"...", options:[...], answer:0}, ... ],
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════════════════════════
 // PREGUNTAS OFICIALES — OMI, STCW, SOLAS, MARPOL, LNCM Y REGLAMENTO
-// ══════════════════════════════════════════════════════════════════════════════
+
 const Q = (q, o, a) => ({ q, options: o, answer: a });
-// ══════════════════════════════════════════════════════════════════════════════
 // 22 TEMAS · 660 PREGUNTAS — Aprobadas y revisadas Junio 2026
 // OMI · STCW · SOLAS · MARPOL · LSA · FSS · PBIP · MLC 2006 · LNCM
-// ══════════════════════════════════════════════════════════════════════════════
 const FALLBACK_QUESTIONS={
   1:[
     Q("Según SOLAS II-2, ¿cada cuánto se realizan los simulacros de incendio?",["Mensualmente","Semanalmente","Anualmente","Cada viaje"],0),
     Q("El triángulo del fuego según la OMI está compuesto por:",["Calor, combustible y oxígeno","Llama, humo y calor","Ignición, propagación y combustible","Temperatura, presión y oxígeno"],0),
     Q("La clase de incendio A corresponde a:",["Materiales sólidos combustibles","Líquidos inflamables","Gases inflamables","Metales combustibles"],0),
-    Q("Los fuegos de clase B son:",["Líquidos y grasas inflamables","Materiales sólidos","Gases inflamables","Metales"],0),
+    Q("Los fuegos de clase B según la OMI (Curso Modelo 1.20) son:",["Líquidos inflamables y gases inflamables — gasolina, diésel, propano, butano","Materiales sólidos combustibles","Equipos eléctricos energizados","Metales combustibles"],0),
     Q("¿Qué agente extintor NO debe usarse en fuegos eléctricos?",["Agua","CO₂","Polvo ABC","Agente limpio"],0),
     Q("El plan de lucha contra incendios según SOLAS debe estar:",["Permanentemente expuesto en lugares accesibles","Solo en el puente","Solo en sala de máquinas","En la caja fuerte del capitán"],0),
     Q("¿Cuántas salidas de emergencia mínimo debe tener cada espacio habitable?",["Dos como mínimo","Una","Tres","Cuatro"],0),
@@ -170,7 +161,7 @@ const FALLBACK_QUESTIONS={
     Q("Según la LNCM, ¿quién es responsable de la seguridad a bordo?",["El capitán como máxima autoridad del buque","Solo el armador","Solo el oficial de seguridad","El Estado de bandera"],0),
     Q("El detector iónico de humo detecta:",["Partículas de combustión en el aire","Solo llamas visibles","Solo calor intenso","Solo gases tóxicos"],0),
     Q("¿Qué es el punto de inflamación de un líquido?",["Temperatura mínima para emitir vapores que se inflaman temporalmente","Temperatura de ebullición","Temperatura de explosión","Temperatura de combustión continua"],0),
-    Q("El extintor de agente húmedo clase K es para:",["Grasas y aceites de cocina","Fuegos eléctricos","Fuegos de sólidos","Fuegos de gases"],0),
+    Q("La clase F/K de incendio según la OMI corresponde a:",["Grasas y aceites de cocina — requiere extintor de agente húmedo clase K","Fuegos eléctricos energizados","Fuegos de sólidos combustibles","Gases inflamables a presión"],0),
     Q("Las zonas verticales principales en SOLAS II-2 sirven para:",["Limitar la propagación del incendio dividiendo el buque en secciones","Solo separar zonas de carga","Solo zonas de pasajeros","Solo proteger sala de máquinas"],0),
     Q("El STCW A-VI/3 exige formación avanzada en incendios para:",["Personal designado como jefe de brigada o bombero","Toda la tripulación","Solo el capitán","Solo el primer oficial"],0),
     Q("Cada espacio del buque debe tener como mínimo:",["Al menos un extintor portátil certificado","Uno por buque en total","Uno por cubierta","Solo en sala de máquinas"],0),
@@ -178,7 +169,7 @@ const FALLBACK_QUESTIONS={
     Q("El sistema fijo de extinción más común en sala de máquinas es:",["CO₂ o equivalente aprobado por la OMI","Solo espuma","Solo agua nebulizada","Solo polvo"],0),
     Q("¿Qué significa la clase de incendio D?",["Metales combustibles como magnesio, titanio y litio","Líquidos inflamables","Gases inflamables","Materiales sólidos combustibles"],0),
     Q("El Reglamento de la LNCM establece que los simulacros de incendio:",["Son obligatorios mensualmente y se registran en el diario del buque","Son opcionales","Son solo anuales","Los decide el capitán"],0),
-    Q("¿Qué es la clase de incendio C?",["Gases inflamables como GLP, GN y acetileno","Líquidos inflamables","Metales combustibles","Materiales sólidos"],0),
+    Q("¿Qué es la clase de incendio C según la OMI (Curso Modelo 1.20)?",["Fuegos en equipos eléctricos o instalaciones energizadas — no usar agente extintor conductor","Gases inflamables como GLP y acetileno","Metales combustibles como magnesio","Sólidos combustibles como madera y papel"],0),
     Q("La formación de brigada de incendios debe incluir al menos:",["Un equipo completo de bomberos por guardia","Solo al capitán","Solo a los oficiales","A toda la tripulación sin equipo especial"],0),
   ],
   2:[
@@ -854,8 +845,9 @@ const FALLBACK_QUESTIONS={
     Q("¿Qué es el vencimiento de un cable de acero y quién lo determina?",["Fecha límite de uso determinada por el fabricante, normas de clasificación y tipo de servicio — obligatorio respetarlo","Solo una recomendación del fabricante sin obligación","Solo aplica a cables de botes salvavidas","Lo decide libremente el capitán del buque"],0),
   ],
 };
+
+
 // PAYMENT CONFIG
-// ══════════════════════════════════════════════════════════════════════════════
 const PAYMENT_CONFIG = {
   clabe: "722969013321418745",
   bank: "Mercado Pago",
@@ -864,9 +856,7 @@ const PAYMENT_CONFIG = {
   mplink: "https://mpago.la/1j3E5vp",
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
 // GOOGLE SHEETS INTEGRATION
-// ══════════════════════════════════════════════════════════════════════════════
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwndPUvMMYECNlfYNX2CSsf_X6rCoBA_llT6edjgmxnx1fHpIQpfDZDA8U_pmsptEWd/exec";
 
 async function sendResultsToSheets(profile, topic, lang, correctCount, totalQuestions) {
@@ -889,7 +879,11 @@ async function sendResultsToSheets(profile, topic, lang, correctCount, totalQues
     await fetch(SHEETS_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
       body: JSON.stringify(data),
     });
   } catch (err) {
@@ -904,6 +898,31 @@ function loadAdminKeys() {
 }
 function saveAdminKeys(keys) {
   try { localStorage.setItem(ADMIN_KEYS_STORAGE, JSON.stringify(keys)); } catch {}
+}
+
+async function notifyKeyActivation(profile, topic, key) {
+  try {
+    // Send email via FormSubmit (free, no registration needed)
+    // First time: FormSubmit will send a confirmation email to activate
+    const body = new FormData();
+    body.append("_subject", "🚢 CREW EVAL — Clave activada: " + key);
+    body.append("_template", "table");
+    body.append("_captcha", "false");
+    body.append("Clave", key);
+    body.append("Tema", topic.nameEs + " (Tema " + topic.id + ")");
+    body.append("Nombre", profile?.nombre || "Sin nombre");
+    body.append("Teléfono", profile?.tel || "Sin teléfono");
+    body.append("Correo", profile?.correo || "Sin correo");
+    body.append("Buque", profile?.buque || "Sin buque");
+    body.append("Rango", profile?.rango || "Sin rango");
+    body.append("Fecha", new Date().toLocaleString("es-MX"));
+    await fetch("https://formsubmit.co/velaperezmargarita@gmail.com", {
+      method: "POST",
+      body,
+    });
+  } catch (err) {
+    console.log("Email notification failed (non-critical):", err);
+  }
 }
 function generateCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -921,63 +940,56 @@ function getValidKeys() {
   return keys;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // SHUFFLE with seed (garantiza preguntas distintas cada sesión)
-// ══════════════════════════════════════════════════════════════════════════════
 function seededShuffle(arr) {
   // Usamos timestamp + random para que cada tripulante en el mismo barco
   // vea un orden diferente en la misma sesión
-  const seed = Date.now() + Math.random() * 999999;
   const a = [...arr];
-  let s = seed;
   for (let i = a.length - 1; i > 0; i--) {
-    s = (s * 1664525 + 1013904223) & 0xffffffff;
-    const j = Math.abs(s) % (i + 1);
+    const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// AI QUESTION GENERATOR
-// ══════════════════════════════════════════════════════════════════════════════
+// QUESTION GENERATOR — ES/EN pre-translated static banks (no API needed)
 async function generateQuestions(topic, lang, count = 30) {
-  // Use custom questions if available for this topic
+  const isEN = lang === "en";
+  let pool;
+
   if (CUSTOM_QUESTIONS[topic.id] && CUSTOM_QUESTIONS[topic.id].length >= count) {
-    const shuffled = seededShuffle(CUSTOM_QUESTIONS[topic.id]);
-    return shuffled.slice(0, count).map(q => {
-      const opts = [...q.options];
-      const correctText = opts[q.answer];
-      const shuffledOpts = seededShuffle(opts);
-      return { q: q.q, options: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
-    });
+    pool = seededShuffle(CUSTOM_QUESTIONS[topic.id]).slice(0, count);
+  } else {
+    const bank = isEN
+      ? (FALLBACK_QUESTIONS_EN[topic.id] || FALLBACK_QUESTIONS_EN[1])
+      : (FALLBACK_QUESTIONS[topic.id] || FALLBACK_QUESTIONS[1]);
+    pool = seededShuffle(bank).slice(0, Math.min(count, bank.length));
   }
 
-  // Built-in fallback questions per topic
-  const fallback = FALLBACK_QUESTIONS[topic.id] || FALLBACK_QUESTIONS[1];
-  const shuffled = seededShuffle(fallback);
-  return shuffled.slice(0, Math.min(count, shuffled.length)).map(q => {
+  return pool.map(q => {
     const opts = [...q.options];
     const correctText = opts[q.answer];
     const shuffledOpts = seededShuffle(opts);
     return { q: q.q, options: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
   });
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// STORAGE
-// ══════════════════════════════════════════════════════════════════════════════
 const SK = "creweval_v3";
 function loadState() {
-  try { return JSON.parse(localStorage.getItem(SK) || "{}"); } catch { return {}; }
+  try {
+    const s = JSON.parse(localStorage.getItem(SK) || "{}");
+    // v3.1: ensure free topics (1,2,8) are never blocked by old access data
+    const FREE_IDS = [1, 2, 8];
+    if (s.access) {
+      FREE_IDS.forEach(id => { if (s.access[id]) delete s.access[id]; });
+    }
+    return s;
+  } catch { return {}; }
 }
 function saveState(s) {
   try { localStorage.setItem(SK, JSON.stringify(s)); } catch {}
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // APP
-// ══════════════════════════════════════════════════════════════════════════════
 export default function App() {
   const [lang, setLang] = useState("es");
   const [screen, setScreen] = useState("home");
@@ -1039,6 +1051,29 @@ export default function App() {
   const access = state.access || {};
   const coinTopics = state.coinTopics || [];
 
+  // Handle ?tema=N URL parameter — auto-open topic modal on load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const temaId = parseInt(params.get("tema"));
+    if (temaId && temaId >= 1 && temaId <= 22) {
+      const topic = TOPICS.find(t => t.id === temaId);
+      if (topic) {
+        // Small delay to let app render first
+        setTimeout(() => {
+          if (topic.free) {
+            startEval(topic);
+          } else {
+            setModalTab("key");
+            setKeyInput("");
+            setKeyError("");
+            setKeySuccess("");
+            setShowModal(topic);
+          }
+        }, 600);
+      }
+    }
+  }, []);
+
   const handleRegister = () => {
     const errors = {};
     if (!regForm.nombre.trim()) errors.nombre = true;
@@ -1075,8 +1110,12 @@ export default function App() {
     const validKeys = getValidKeys();
     const keyData = validKeys[key];
     if (!keyData || keyData.topicId !== showModal.id) { setKeyError(t.keyError); return; }
+    // Check if key is used in user's local access history
     const allUsed = Object.values(access).flatMap(a => a.usedKeys || []);
     if (allUsed.includes(key)) { setKeyError(t.keyError); return; }
+    // Check if key is marked used in admin keys (used by someone else on different device)
+    const currentAdminKeys = loadAdminKeys();
+    if (currentAdminKeys[key] && currentAdminKeys[key].used === true) { setKeyError(t.keyError); return; }
     // Mark key as used in admin keys
     const adminKeys = loadAdminKeys();
     if (adminKeys[key]) {
@@ -1092,13 +1131,15 @@ export default function App() {
     };
     updateState({ access: newAccess });
     setKeySuccess(t.keySuccess);
+    // Send email notification to admin
+    notifyKeyActivation(profile, showModal, key);
     setTimeout(() => { const tp = showModal; setShowModal(null); startEval(tp); }, 1400);
   };
 
   const handleRedeem = (topic) => {
-    if (coins < 10) return;
+    if ((state.freeTokens || 0) < 1) return;
     const newCoinTopics = [...coinTopics, topic.id];
-    updateState({ coins: coins - 10, coinTopics: newCoinTopics });
+    updateState({ freeTokens: (state.freeTokens || 1) - 1, coinTopics: newCoinTopics });
     setShowRedeem(false);
     startEval(topic);
   };
@@ -1129,11 +1170,17 @@ export default function App() {
     setAnswers(newAnswers);
     if (current + 1 < questions.length) { setCurrent(c => c + 1); setSelected(null); }
     else {
-      // Check for perfect score → award coins
+      // Check for perfect score: every 5 perfect exams = 1 free exam
       const allCorrect = newAnswers.every(a => a.sel === a.correct);
       if (allCorrect) {
-        const newCoins = (state.coins || 0) + 5;
-        updateState({ coins: newCoins });
+        const perfectCount = (state.coins || 0) + 1;
+        if (perfectCount >= 5) {
+          // 5 perfect exams reached! Award 1 free exam token
+          const freeTokens = (state.freeTokens || 0) + 1;
+          updateState({ coins: 0, freeTokens });
+        } else {
+          updateState({ coins: perfectCount });
+        }
         setCoinAnim(true);
         setTimeout(() => setCoinAnim(false), 3000);
       }
@@ -1158,6 +1205,12 @@ export default function App() {
       <div style={S.bgOverlay} /><div style={S.bgGrid} />
 
       {/* HEADER */}
+      <style>{`
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes coinPop{0%{opacity:0;transform:translateX(-50%) scale(0.5)}15%{opacity:1;transform:translateX(-50%) scale(1.1)}85%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) scale(0.9)}}
+        button:hover{filter:brightness(1.12)}
+      `}</style>
       <header style={S.header}>
         <div style={S.headerInner}>
           <div style={S.logo}>
@@ -1173,7 +1226,6 @@ export default function App() {
                 👤 <span style={S.profileName}>{profile.nombre.split(" ")[0]}</span>
               </button>
             )}
-            <button style={S.adminBtn} onClick={() => { setShowAdmin(true); setAdminAuth(false); setAdminPass(""); setNewlyGeneratedKey(""); }}>⚙️</button>
             <button style={S.coinBtn} onClick={() => setShowWallet(true)}>
               🪙 <span style={S.coinCount}>{coins}</span>
             </button>
@@ -1321,7 +1373,7 @@ export default function App() {
             )}
             <div style={S.coinBanner}>
               <span>🪙 {t.coinInfo}</span>
-              {coins >= 10 && (
+              {(state.freeTokens || 0) >= 1 && (
                 <button style={S.redeemSmallBtn} onClick={() => setShowRedeem(true)}>{t.redeemBtn}</button>
               )}
             </div>
@@ -1400,7 +1452,7 @@ export default function App() {
         {/* RESULTS */}
         {screen === "results" && (
           <div style={S.fadeIn}>
-            {coinAnim && <div style={S.coinAnim}>🪙🪙🪙 +5 {t.coins}! 🪙🪙🪙</div>}
+            {coinAnim && <div style={S.coinAnim}>{(state.freeTokens||0)>=1 ? "🎁 ¡EXAMEN GRATIS DESBLOQUEADO! 🎁" : `🏆 Perfecto ${state.coins||0}/5 para examen gratis 🏆`}</div>}
             <div style={{ ...S.resultCard, ...(isCompetent ? S.resultOk : S.resultFail) }}>
               <div style={S.resultIcon}>{isPerfect ? "🏆" : isCompetent ? "✅" : "📚"}</div>
               <div style={S.resultStatus}>{isPerfect ? t.perfect : isCompetent ? t.competent : t.notYet}</div>
@@ -1410,32 +1462,9 @@ export default function App() {
                 <span style={S.bdOk}>✓ {correctCount} {t.correct}</span>
                 <span style={S.bdFail}>✗ {questions.length - correctCount} {t.incorrect}</span>
               </div>
-              {isPerfect && <div style={S.coinEarned}>{t.coinsEarned} · Total: {coins} 🪙</div>}
+              {isPerfect && <div style={S.coinEarned}>{(state.freeTokens||0)>=1 ? "🎁 ¡Ganaste un examen gratis!" : `🏆 ${state.coins||0}/5 exámenes perfectos`}</div>}
               {attLeft !== null && <div style={S.attInfo}>🎫 {attLeft} {t.attemptsLeft}</div>}
             </div>
-
-            {answers.filter(a => a.sel === a.correct).length > 0 && (
-              <div style={S.reviewSection}>
-                <h3 style={S.reviewTitleOk}>✅ {t.reviewCorrect}</h3>
-                {answers.filter(a => a.sel === a.correct).map((a, i) => (
-                  <div key={i} style={S.reviewItemOk}>
-                    <p style={S.reviewQ}>{questions[a.qi].q}</p>
-                    <p style={S.reviewA}>{t.correctAnswer}: <strong>{questions[a.qi].options[a.correct]}</strong></p>
-                  </div>
-                ))}
-              </div>
-            )}
-            {answers.filter(a => a.sel !== a.correct).length > 0 && (
-              <div style={S.reviewSection}>
-                <h3 style={S.reviewTitleFail}>❌ {t.reviewWrong}</h3>
-                {answers.filter(a => a.sel !== a.correct).map((a, i) => (
-                  <div key={i} style={S.reviewItemFail}>
-                    <p style={S.reviewQ}>{questions[a.qi].q}</p>
-                    <p style={{ ...S.reviewA, color: "#ef9a9a" }}>{t.yourAnswer}: {questions[a.qi].options[a.sel]}</p>
-                  </div>
-                ))}
-              </div>
-            )}
 
             <div style={S.resultActions}>
               {(selectedTopic?.free || coinTopics.includes(selectedTopic?.id) || attLeft > 0) && (
@@ -1450,13 +1479,22 @@ export default function App() {
         )}
       </main>
 
+      <footer style={{textAlign:"center",padding:"18px 0 10px",color:"rgba(255,255,255,0.12)",fontSize:11}}>
+        <span
+          style={{cursor:"default",userSelect:"none"}}
+          onDoubleClick={() => { setShowAdmin(true); setAdminAuth(false); setAdminPass(""); setNewlyGeneratedKey(""); }}
+        >
+          © 2026 CREW EVAL
+        </span>
+      </footer>
+
       {/* WALLET MODAL */}
       {showWallet && (
         <div style={S.overlay} onClick={() => setShowWallet(false)}>
           <div style={S.modal} onClick={e => e.stopPropagation()}>
             <div style={S.modalIcon}>🪙</div>
             <h3 style={S.modalTitle}>{t.coinsTitle}</h3>
-            <div style={S.bigCoins}>{coins}</div>
+            <div style={S.bigCoins}>{state.coins||0}<span style={{fontSize:14,color:"#aaa"}}>/5</span></div>
             <p style={S.coinDesc}>{t.coinsDesc}</p>
             <div style={S.coinProgress}>
               <div style={S.coinProgressBar}>
@@ -1464,7 +1502,7 @@ export default function App() {
               </div>
               <div style={S.coinProgressLabel}>{coins % 10}/10 {lang === "es" ? "para próximo gratis" : "to next free"}</div>
             </div>
-            {coins >= 10 && (
+            {(state.freeTokens || 0) >= 1 && (
               <button style={S.redeemMainBtn} onClick={() => { setShowWallet(false); setShowRedeem(true); }}>
                 {t.redeemBtn}
               </button>
@@ -1527,8 +1565,19 @@ export default function App() {
                   </div>
                 </div>
                 <div style={S.payStep}><span style={S.payStepNum}>2</span>
-                  <div style={S.payStepLabel}>{lang === "es" ? "Envía tu comprobante y el tema que deseas por" : "Send your receipt and desired topic via"}
-                    <a href={`https://wa.me/${PAYMENT_CONFIG.whatsapp}`} target="_blank" rel="noreferrer" style={S.waLink}>&nbsp;📱 {t.whatsapp}</a>
+                  <div style={S.payStepLabel}>
+                    {lang === "es" ? "Envía tu comprobante y el tema que deseas por:" : "Send your receipt and desired topic via:"}
+                    <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+                      <a href={`https://wa.me/${PAYMENT_CONFIG.whatsapp}?text=${encodeURIComponent("Hola, adjunto comprobante de pago por el tema: " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : ""))}`}
+                        target="_blank" rel="noreferrer"
+                        style={{...S.waLink, background:"rgba(37,211,102,0.15)", border:"1px solid rgba(37,211,102,0.3)", borderRadius:8, padding:"6px 12px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:4}}>
+                        📱 WhatsApp
+                      </a>
+                      <a href={`mailto:velaperezmargarita@gmail.com?subject=${encodeURIComponent("Pago CREW EVAL - " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : ""))}&body=${encodeURIComponent("Hola, adjunto comprobante de pago.%0ATema: " + (showModal ? (lang==="es"?showModal.nameEs:showModal.nameEn) : "") + "%0AMi nombre: %0AMi telefono: ")}`}
+                        style={{...S.waLink, background:"rgba(66,133,244,0.15)", border:"1px solid rgba(66,133,244,0.3)", borderRadius:8, padding:"6px 12px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:4, color:"#90caf9"}}>
+                        ✉️ {lang === "es" ? "Correo" : "Email"}
+                      </a>
+                    </div>
                   </div>
                 </div>
                 <div style={S.payStep}><span style={S.payStepNum}>3</span>
@@ -1628,9 +1677,7 @@ export default function App() {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // STYLES
-// ══════════════════════════════════════════════════════════════════════════════
 const S = {
   root: { minHeight: "100vh", background: "#0a0f1e", color: "#e8eaf6", fontFamily: "'Segoe UI', system-ui, sans-serif", position: "relative", overflowX: "hidden" },
   bgOverlay: { position: "fixed", inset: 0, background: "radial-gradient(ellipse at 20% 50%, rgba(0,80,160,0.15) 0%, transparent 60%)", pointerEvents: "none", zIndex: 0 },
@@ -1797,11 +1844,3 @@ const S = {
   cancelBtn: { width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#546e7a", fontSize: 12, cursor: "pointer", marginTop: 6 },
 };
 
-const el = document.createElement("style");
-el.textContent = `
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes coinPop{0%{opacity:0;transform:translateX(-50%) scale(0.5)}15%{opacity:1;transform:translateX(-50%) scale(1.1)}85%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) scale(0.9)}}
-  button:hover{filter:brightness(1.12)}
-`;
-document.head.appendChild(el);
